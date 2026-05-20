@@ -18,3 +18,4 @@
 14. 导航栏是否在 #stage 内部用 position:absolute（非 fixed）
 15. 所有内容是否在 stage 边界内（无溢出裁切）
 16. 每个 beat 是否有视觉重心（图文 beat：截图 ≥ 40% 面积或标题 ≥ 正文 3 倍；纯文字 beat：主标题 ≥ 120px / 4:3 ≥ 88px）——禁止所有元素同等大小平铺
+17. 信息截图是否完整显示（无 object-fit:cover 裁切），容器是否无多余 background-color（无灰色背景框）

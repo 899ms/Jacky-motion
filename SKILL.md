@@ -234,13 +234,16 @@ curl -s https://api.openai.com/v1/audio/speech \
 7. .beat 用 `position:absolute;inset:0` 撑满画布，不加 padding；只有内部容器有 padding。beat 内部容器加 `overflow:hidden`，子元素禁止超出 stage 边界
 8. 节拍数量由内容决定，宁多不丢信息
 9. 截图/配图必须作为可见的主视觉展示，**不可**作为暗淡背景图（opacity<0.5 的 background-image）
-10. 信息元素布局必须对齐、有结构（网格/行列），**不可**随机散布（如绝对定位到随机百分比坐标）
-11. 渐进揭示与多步动画：口播内容有明确推进的节拍，用 `data-steps="N"` 标记，点击依次推进步骤，全部步骤完成后才进入下一个节拍。列表/标签/要点等多项内容必须逐项出现（1 项 = 1 步），不可同时 stagger 全部涌入
-12. 同一区域的元素不可重叠遮挡——大数字、标题、描述文字等必须分层排列，不允许 absolute 定位导致的文字重叠
-13. 分段式导航栏：必须放在 `#stage` 内部，用 `position:absolute;bottom:28px;left:50%;transform:translateX(-50%)`，**禁止 `position:fixed`**。显示 past / active / future 状态，支持点击跳转任意节拍
-14. body 背景色必须与 `#stage` 主背景色相同。body 用 `display:grid;place-items:center;min-height:100vh` 居中 stage。stage 用固定像素尺寸（16:9 为 1920×1080，4:3 为 1440×1080）+ JS `transform:scale(Math.min(innerWidth/W, innerHeight/H))` 缩放 + `transform-origin:center center`
-15. 4:3 布局适配：stage 宽 1440px，信息源 beat 的左图右文改为上图下文或 6:4 比例（图占 40%），单行文字 max-width 不超过 1200px
-16. 视觉重心：每个 beat 必须有一个主导元素（dominant element），禁止所有元素大小均匀平铺。具体要求：
+10. 截图/配图的 CSS 实现——区分两类图片：
+    - **信息截图**（UI 界面、代码截图、表格、对话截图等需要完整阅读的图片）：**禁止** `object-fit:cover`。容器用 `display:flex;align-items:center;justify-content:center` + padding 居中，img 用 `max-width:100%;max-height:100%;display:block` 自然缩放，配合 `border-radius + box-shadow` 做卡片包裹。容器**不设 background-color**，避免灰色背景框
+    - **装饰配图**（氛围图、纹理、人物特写等不需要完整阅读的图片）：可用 `.crop-frame` + `object-fit:cover`
+11. 信息元素布局必须对齐、有结构（网格/行列），**不可**随机散布（如绝对定位到随机百分比坐标）
+12. 渐进揭示与多步动画：口播内容有明确推进的节拍，用 `data-steps="N"` 标记，点击依次推进步骤，全部步骤完成后才进入下一个节拍。列表/标签/要点等多项内容必须逐项出现（1 项 = 1 步），不可同时 stagger 全部涌入
+13. 同一区域的元素不可重叠遮挡——大数字、标题、描述文字等必须分层排列，不允许 absolute 定位导致的文字重叠
+14. 分段式导航栏：必须放在 `#stage` 内部，用 `position:absolute;bottom:28px;left:50%;transform:translateX(-50%)`，**禁止 `position:fixed`**。显示 past / active / future 状态，支持点击跳转任意节拍
+15. body 背景色必须与 `#stage` 主背景色相同。body 用 `display:grid;place-items:center;min-height:100vh` 居中 stage。stage 用固定像素尺寸（16:9 为 1920×1080，4:3 为 1440×1080）+ JS `transform:scale(Math.min(innerWidth/W, innerHeight/H))` 缩放 + `transform-origin:center center`
+16. 4:3 布局适配：stage 宽 1440px，信息源 beat 的左图右文改为上图下文或 6:4 比例（图占 40%），单行文字 max-width 不超过 1200px
+17. 视觉重心：每个 beat 必须有一个主导元素（dominant element），禁止所有元素大小均匀平铺。具体要求：
     - **图文 beat**：截图与文字必须有主次。截图作主视觉时 ≥ 画面面积 40%、边缘清晰；文字作主视觉时标题字号 ≥ 正文 3 倍。两者不可都是中等大小
     - **纯文字 beat**：用超大标题或数字（16:9 ≥ 120px / 4:3 ≥ 88px）作视觉锚点，辅助文字明显缩小形成层级
     - **检验**：标题与正文字号差距 < 2 倍 → 层级不够；截图缩到一半就看不清 → 截图太小

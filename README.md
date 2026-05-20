@@ -14,38 +14,45 @@ Jacky Motion 是一个中文口播稿转 16:9 信息动画 HTML 的 agent skill�
 
 ## 安装
 
-### 方式 A：cc-switch 手动安装
+最简方式取决于你的宿主 agent。这个仓库只提供标准 skill 文件，具体安装到哪里、怎么唤起，由 Claude Code、Codex、CC Switch、Cursor 等宿主环境决定。
 
-适合你想直接在本机 `~/.cc-switch/skills` 中使用。
+### 通用安装器
+
+如果你的环境支持 `skills` installer，最短命令是：
+
+```bash
+npx skills add https://github.com/Jackywxsz/jacky-motion
+```
+
+需要非交互或指定 agent 时，再按你的环境追加参数。例如 Codex 环境可以使用：
+
+```bash
+npx skills add https://github.com/Jackywxsz/jacky-motion --skill jacky-motion -a codex -g -y
+```
+
+### 手动安装
+
+如果你的 agent 读取某个本地 skills 目录，把仓库克隆到对应目录即可。下面只是常见例子，不代表所有环境都必须使用 CC Switch：
+
+```bash
+git clone https://github.com/Jackywxsz/jacky-motion.git <your-skills-dir>/jacky-motion
+```
+
+使用 CC Switch 时通常是：
 
 ```bash
 mkdir -p ~/.cc-switch/skills
 git clone https://github.com/Jackywxsz/jacky-motion.git ~/.cc-switch/skills/jacky-motion
 ```
 
-更新：
-
-```bash
-cd ~/.cc-switch/skills/jacky-motion
-git pull
-```
-
-### 方式 B：skills installer 安装
-
-适合使用支持 GitHub skill 安装器的 agent 环境。
-
-```bash
-npx skills add https://github.com/Jackywxsz/jacky-motion --skill jacky-motion -a codex -g -y
-```
-
-如果你的环境使用不同 agent scope，把 `-a codex` 换成对应 agent 名称。
-
 ## 使用
 
-在支持 skill 的 agent 中调用：
+在支持 skill 的 agent 中调用。注意：调用符号不是这个仓库决定的，而是宿主环境决定的。
 
 ```text
-$jacky-motion
+Claude Code / CC Switch 等环境可能是：/jacky-motion
+Codex 或其他 skills 环境可能是：$jacky-motion
+有些环境会根据 skill 名称或描述自动匹配，不需要手动输入前缀。
 ```
 
 然后贴入口播稿，并说明你想要的方向，例如：
