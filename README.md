@@ -1,6 +1,6 @@
-# Jacky Motion
+# Jacky-motion
 
-Jacky Motion 是一个中文口播稿转 16:9 信息动画 HTML 的 agent skill。它面向知识博主、课程创作者、AI 工具讲解、商业分析和观点型短视频，把一篇口播稿拆成可录屏的动态网页演示。
+Jacky-motion 是一个中文口播稿转 16:9 信息动画 HTML 的 agent skill。它面向知识博主、课程创作者、AI 工具讲解、商业分析和观点型短视频，把一篇口播稿拆成可录屏的动态网页演示。
 
 它不是通用 PPT 模板，也不是只负责“做得好看”的视觉包装。核心目标是：让信息层次更清楚，让动画节奏服务口播表达。
 
@@ -32,13 +32,13 @@ Jacky Motion 是一个中文口播稿转 16:9 信息动画 HTML 的 agent skill�
 如果你的环境支持 `skills` installer，最短命令是：
 
 ```bash
-npx skills add https://github.com/Jackywxsz/jacky-motion
+npx skills add https://github.com/Jackywxsz/Jacky-motion
 ```
 
 需要非交互或指定 agent 时，再按你的环境追加参数。例如 Codex 环境可以使用：
 
 ```bash
-npx skills add https://github.com/Jackywxsz/jacky-motion --skill jacky-motion -a codex -g -y
+npx skills add https://github.com/Jackywxsz/Jacky-motion --skill jacky-motion -a codex -g -y
 ```
 
 ### 手动安装
@@ -46,14 +46,14 @@ npx skills add https://github.com/Jackywxsz/jacky-motion --skill jacky-motion -a
 如果你的 agent 读取某个本地 skills 目录，把仓库克隆到对应目录即可。下面只是常见例子，不代表所有环境都必须使用 CC Switch：
 
 ```bash
-git clone https://github.com/Jackywxsz/jacky-motion.git <your-skills-dir>/jacky-motion
+git clone https://github.com/Jackywxsz/Jacky-motion.git <your-skills-dir>/jacky-motion
 ```
 
 使用 CC Switch 时通常是：
 
 ```bash
 mkdir -p ~/.cc-switch/skills
-git clone https://github.com/Jackywxsz/jacky-motion.git ~/.cc-switch/skills/jacky-motion
+git clone https://github.com/Jackywxsz/Jacky-motion.git ~/.cc-switch/skills/jacky-motion
 ```
 
 ## 使用
@@ -82,7 +82,7 @@ Codex 或其他 skills 环境可能是：$jacky-motion
 
 ## 设计理念
 
-Jacky Motion 的底层理念是“信息表达驱动一切”。
+Jacky-motion 的底层理念是“信息表达驱动一切”。
 
 - 布局服务信息层次，不用装饰性卡片堆满画面。
 - 动画服务口播节奏，不为了炫技而动。
