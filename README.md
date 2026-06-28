@@ -4,6 +4,17 @@ Jacky Motion 是一个中文口播稿转 16:9 信息动画 HTML 的 agent skill�
 
 它不是通用 PPT 模板，也不是只负责“做得好看”的视觉包装。核心目标是：让信息层次更清楚，让动画节奏服务口播表达。
 
+## 付费知识库与答疑群
+
+<a href="https://mp.weixin.qq.com/s/x924y3O9-nWda5OTHArKKg">
+  <img src="assets/creator-ai-course.jpg" alt="创作者 AI 课：用 AI 杠杆、代码杠杆、媒体杠杆，重塑内容创作生产体系" width="720">
+</a>
+
+我的付费知识库与答疑群欢迎加入：
+[https://mp.weixin.qq.com/s/x924y3O9-nWda5OTHArKKg](https://mp.weixin.qq.com/s/x924y3O9-nWda5OTHArKKg)
+
+期待与你的深度链接，一起用AI赋能，创作生财📈
+
 ## 核心能力
 
 - 将中文口播稿拆成镜头节拍，并检查信息密度、逻辑断点和屏幕文字长度。
