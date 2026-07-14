@@ -1,34 +1,28 @@
 # 财经演播室卡片风 (finance-studio-cards)
 
-适用：财经、商业、公司分析、宏观政策、产业结构、知识博主专业信息屏。
-气质：演播室信息大屏。观众能清晰看到关系、数据和传导路径。
+适用：财经、商业模式、公司分析、宏观政策、产业结构、指标关系。
+气质：高端财经演播室信息屏。观众先看到主数字，再看到传导路径。
+记忆钩子：黑蓝底信息屏 + 主数字 punch-in + 路径逐段点亮。
 
-## 视觉硬规则
+## 视觉不变量
 
-1. 核心卡片必须有"背发光"：卡片外缘柔和光晕 + 边缘线高亮 + 背景倒影，像高端财经演播室屏幕。
-2. 发光服务层级：主卡片最亮，次级节点弱发光，非当前路径压暗。不能所有卡片同样亮。
-3. 一屏最多 7 个活跃节点，只解释一组关系。
-4. 首屏必须是专业信息大屏：强标题 + 主数字 + 顶部栏条 + 可信标签。
-5. 卡片像演播室图层：直角或小圆角、硬边线、栏条、数据标签、轻微玻璃层次。
+1. **色**：黑蓝近黑底 + 青绿 `--accent` 主强调 + 琥珀 `--accent-2` 只表示风险/警告。颜色服务状态和层级，不做装饰撞色。
+2. **字**：无衬线标题 + 等宽数字（tabular）。主 KPI 140-220px，必须在 50% 缩放下先被看到；数据不藏小卡片。
+3. **构图**：顶部栏、主数字、传导路径三件套至少出现两个。一屏最多 7 个活跃节点；主卡片最亮、次级弱发光、非当前压暗——禁止所有卡片同亮。
+4. **运动**：数字 punch-in、路径逐段点亮、卡片组归位、非重点压暗。节点分批出现，禁全体同动。
 
-## 组件库
+## 签名组件（assets/styles/finance-studio-cards.css）
 
-**全局**：`.top-bar` / `.top-bar-label` / `.top-bar-accent`（顶部演播室栏条）
-**卡片**：`.card` / `.card.main` / `.card.large` / `.card-title` / `.card-body` / `.glow-edge`
-**节点**：`.node` / `.node.lit` / `.node.main`
-**文字**：`.kicker`（绿色标签）/ `.headline` / `.headline-sm` / `.sub-text` / `.accent-word`
-**数据**：`.kpi-number` / `.kpi-label` / `.bar-item` / `.bar-label` / `.bar-track` / `.bar-fill` / `.bar-fill.lead` / `.bar-value`
-**流程**：`.transmission-stage` / `.transmission-stage.main` / `.stage-title` / `.stage-desc` / `.flow-node` / `.flow-node.main` / `.flow-label` / `.flow-amount` / `.flow-connector`
-**辅助**：`.vs-divider` / `.relation-line` / `.flow-arrow`
+`.top-bar`（演播室顶栏）· `.card.main`（背发光主卡）· `.card.quiet`（压暗卡）· `.risk`/`.tag.risk`（琥珀风险）· `.bar-track`/`.bar-fill`（数据条）· `.hl`
 
-## 运动个性
+## 版式偏好
 
-1. 强节拍必须有版面级运动：截图收进侧屏、数字 punch-in、关系路径逐段点亮、卡片组归位。
-2. 卡片入场时带外缘背发光，落位后保持克制亮边。
-3. 节点/卡片必须分批出现，不能所有节点同时运动。
+优先 L07 数据主屏 / L04 横向流程（传导链）/ L03 左右对比 / L06 矩阵网格（指标组）。
+推荐 recipe：number-to-system / path-build / split-reveal / matrix-fill。
 
 ## 风格禁忌
 
-1. 过度圆角 SaaS 卡片。
-2. 扁平深色卡片没有背发光（必须有光效层次）。
-3. 所有节点同时运动（必须分批）。
+1. 过度圆角 SaaS 卡片、浅色三卡平铺。
+2. 无发光层次的扁平深色卡。
+3. 伪数据、随机涨跌箭头、币圈霓虹、彩虹行情线。
+4. 所有指标同大小导致没有主数字主路径。

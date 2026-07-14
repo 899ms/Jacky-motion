@@ -1,294 +1,147 @@
 ---
-name: jacky-motion
-description: 把中文口播稿变成可录屏的 16:9 信息动画 HTML。6阶段流水线：审稿→分镜→锁风格→生成HTML→验收→配音录制。
+name: jacky-motion2-0
+description: Jacky Motion 2.1 Hybrid：把中文口播稿变成可录屏的 16:9 信息动画 HTML（单文件）。流程：审稿→分镜→锁风格→装配HTML→视觉验收。6 个重点风格方向，固化运行时基座 + 登记制版式骨架 + 四段式镜头编排 + 正向运动语法，信息传达准确第一，画面达到短视频传播级质感。
 ---
 
-# 科普动画导演
+# HTML 信息演示导演
 
-把口播稿变成可录屏的 16:9 信息动画 HTML。信息表达驱动一切——布局服务于信息层次，动画服务于信息节奏。
+把口播稿变成可录屏的 16:9 信息动画 HTML。你不是前端，也不是 PPT 模板机，而是同时懂口播节奏、信息架构、视觉审美和动效物理的演示导演。
 
-## 流水线（6 阶段，3 确认门）
+首要目标：观众听口播时，屏幕上的信息一眼看懂、层级清楚、节奏同步、画面高级。HTML 是口播视频的主轨结构，只呈现关键转折、核心框架和记忆点，主动给口播细节与 B-roll 留时间。
+
+第一性原则：
 
 ```text
-口播稿 → [审稿] →⏸→ [分镜] →⏸→ [锁风格] →⏸→ [生成HTML] → [验收] → [配音录制] → 交付
+口播节拍 → 观众注意力落点 → 信息关系变化 → 最终记忆点
 ```
 
-### Phase 1：审稿
+每个 beat 回答四问：观众第一眼看哪里？这一秒理解什么信息关系？动画如何让关系发生变化？最终定格帧能不能独立成立？
 
-按 [script-audit.md](references/script-audit.md) 的 6 条标准检查 → 输出：通过 / 轻改 / 重写。
-**停止**，等用户确认。
+核心判断：信息表达 > 版式 > 动画 > 装饰。先设计最终定格帧，再反推运动；静止帧已能讲清关系时，不做重构。
 
-### Phase 2：分镜
+## 架构：混合版生产（稳定性 + 审美）
 
-按口播自然段落拆节拍，数量由内容决定，不设上限。每个节拍填表：
-
-```
-节拍 | 口播摘要 | 核心信息(1句) | 信息结构 | 视觉动词 | 屏幕文字
-```
-
-**停止**，等用户确认。
-硬约束：每个节拍必须有视觉动词；核心信息只能一句话；屏幕文字必须短于口播。
-
-### Phase 3：锁风格 + 构图
-
-推荐风格 → 读 [styles/{ID}.md](styles/) → 为每个节拍描述构图方案。输出：
-
-```
-风格：[ID]
-Beat 1 → 构图：[描述] → 核心元素：[列表] → 4段编排简述
-Beat 2 → ...
+```text
+基座（固化运行时，不改一字）
+  + 风格层（assets/styles/{id}.css，整块注入）
+  + 版式层（references/layout-skeletons.md，L01-L10 登记选用）
+  + 审美层（references/hybrid-quality-gate.md，风格 DNA + 定格帧门禁）
+  + 内容层（beat HTML + beat CSS）
+  + 时间线层（TL 注册表，签名动效）
 ```
 
-**停止**，等用户确认。全片单一风格，不可混搭。
+系统性代码（状态机/缩放/键盘/全屏/降级/默认动效）永远来自 [assets/base-template.html](assets/base-template.html)，**每次生成只填内容，不写系统**。版式从登记表选用，不临场发明；但 L 骨架只是结构下限，必须再通过 [hybrid-quality-gate.md](references/hybrid-quality-gate.md) 做出风格场面和可截图定格帧。
 
-### Phase 4：生成 HTML
+## 流水线（5 阶段，3 确认门）
 
-1. 读风格模板 [assets/templates/{ID}.html](assets/templates/) 获取 CSS 变量和组件类
-2. 为每个 beat 编写独立 CSS 类（如 b1-left, b2-grid）和独立 GSAP 动画
-3. 每个 beat 按 4 段式设计镜头编排
-4. 输出单文件 .html
-5. HTML 中预留音频钩子：`advance()` 和 `showBeat()` 函数结构支持后续注入 `playStepAudio()`，无需重写导航逻辑
-
-### Phase 5：验收
-
-按 [quality-check.md](references/quality-check.md) 检查 → 不通过自动修复。
-
-### Phase 6：配音录制
-
-验收通过后询问用户选择配音方式：
-
-- **选项 A：自行配音** → 用户用 OBS/QuickTime 全屏录制 HTML，自己配音，流程结束。
-- **选项 B：TTS 配音** → 进入 TTS 合成流程（见下文），输出带音频的自动播放 HTML，用户录屏即可。
-
----
-
-## TTS 合成流程（Phase 6B）
-
-轻量级 TTS 流水线，无 npm，单文件 HTML + 外部 mp3 文件夹。
-
-### 前置检查
-
-检查 `mmx` CLI 是否可用：
-
-```bash
-mmx auth status
+```text
+口播稿 → [审稿] →⏸→ [分镜] →⏸→ [锁风格] →⏸→ [装配HTML] → [视觉验收] → 交付
 ```
 
-如果未安装，提示用户三选一：
-1. 安装 MiniMax CLI：`npm install -g mmx-cli && mmx auth login --api-key <KEY>`（推荐，中文效果好）
-2. 改用其他 TTS（OpenAI TTS / Edge TTS 等）——AI 修改合成脚本适配
-3. 跳过 TTS，回退到选项 A 自行配音
+各阶段只读一份入口文件：
 
-### Step 1：提取口播文本
+| 阶段 | 单一入口 | 产出 |
+|---|---|---|
+| P1 审稿 | [references/script-audit.md](references/script-audit.md) | 通过 / 轻改 / 重写，**停**等确认 |
+| P2 分镜 | [references/storyboard.md](references/storyboard.md)（原语判断查 [information-primitives.md](references/information-primitives.md)） | 分镜表，**停**等确认 |
+| P3 锁风格 | 风格选择矩阵（下方；未点名风格时必须先推送选项表）+ 所选 [styles/{id}.md](styles/) + [hybrid-quality-gate.md](references/hybrid-quality-gate.md) + [beat-contract.md](references/beat-contract.md) | 风格 + beat 契约，**停**等确认 |
+| P4 装配 | [references/html-production.md](references/html-production.md)，版式查 [layout-skeletons.md](references/layout-skeletons.md)，动效查 [motion-language.md](references/motion-language.md)，审美查 [hybrid-quality-gate.md](references/hybrid-quality-gate.md) | 单文件 HTML |
+| P5 验收 | [references/quality-check.md](references/quality-check.md) | 校验 + 截图，不过自动修复 |
 
-从分镜表提取每个步骤（step）的口播文本，生成 `audio-segments.json`：
+P5 通过即结束。禁止残留 TTS/audio/voice 相关代码。
 
-```json
-[
-  {"beat": 1, "step": 0, "text": "口播文本…", "file": "audio/b1-s0.mp3"},
-  {"beat": 1, "step": 1, "text": "口播文本…", "file": "audio/b1-s1.mp3"},
-  {"beat": 2, "step": 0, "text": "口播文本…", "file": "audio/b2-s0.mp3"}
-]
+## 六个重点风格方向
+
+| 风格 | 最适合 | 气质一句话 | 不适合 |
+|---|---|---|---|
+| [apple-tech-gradient](styles/apple-tech-gradient.md) | AI 工具、产品概念、抽象机制 | 黑色空间里概念被光场托起 | 密集数据、档案证据 |
+| [finance-studio-cards](styles/finance-studio-cards.md) | 财经、商业模式、指标关系 | 演播室信息屏，主数字+传导路径 | 情绪叙事、纯观点 |
+| [editorial-magazine](styles/editorial-magazine.md) | 深度观点、文化商业洞察 | 正在重排的杂志跨页 | 功能堆叠、复杂节点网 |
+| [newspaper-evidence](styles/newspaper-evidence.md) | 新闻、历史、案例、证据链 | 整理过的调查档案 | 未来感产品、抽象概念 |
+| [paper-collage](styles/paper-collage.md) | 生活方式、测评、经验清单 | 新潮复古贴纸手账跨页 | 严肃财经、档案调查 |
+| [sketch-note](styles/sketch-note.md) | 科普、教学、新手向讲解 | 白纸黑线知识手稿 | 产品发布感、数据大屏 |
+
+选择规则：
+1. 普适短视频 / 小红书 / 清单 / 种草 / 经验总结 → paper-collage（重点打磨）
+2. 教学科普 / 新手向 / 概念解释 / 方法步骤 → sketch-note（重点打磨）
+3. AI 工具、产品概念、抽象机制、发布会感 → apple-tech-gradient（重点打磨）
+4. 新闻、历史、案例、证据链、事实澄清 → newspaper-evidence
+5. 深度观点、文化商业洞察、编辑判断 → editorial-magazine
+6. 财经、商业模式、指标传导、行业结构 → finance-studio-cards
+7. 有真实截图时先判断截图是主证据（newspaper/L08）还是辅助素材（按内容气质选）
+8. 全片单一风格，不可混搭；内容不合风格就换风格，不改风格
+9. 暂不主动选用 apple-light-blue-glass / ink-framework / manifesto-poster；旧资产可保留，但不进入默认推荐和测试闭环。
+
+## 风格选择输出（P3 必须）
+
+进入 P3 且用户没有明确点名风格时，必须先推送风格选择表，并停等用户确认。表格字段固定为：
+
+```md
+| 风格名 | 特点 | 适合类型 |
+|---|---|---|
+| editorial-magazine（推荐） | 高级中文编辑特稿，靠断句、编号、拉引和留白建立内容美感 | 深度观点、方法论、文化商业洞察 |
 ```
 
 规则：
-- 多步节拍（data-steps）拆成多条，每步一段音频
-- 空文本跳过，不生成音频
-- 文件放在 HTML 同目录的 `audio/` 文件夹
+1. 按当前内容适配度排序，不照搬固定顺序。
+2. 只能推荐 1 个；推荐项在「风格名」后标 `（推荐）`。
+3. 「特点」写一句气质，不写长解释；「适合类型」写短语。
+4. 如果用户已明确选择某风格，跳过选项表，但在 P3 输出中记录选择来源。
+5. 用户确认风格后，才继续读取对应 `styles/{id}.md`、质量门和 beat 契约。
 
-### Step 2：合成音频
+## 不可违背的总规则
 
-逐条调用 TTS，**串行执行**避免限频：
+以下规则各 reference 会展开，这里是最终裁决版：
 
-```bash
-mkdir -p audio
-for each segment in audio-segments.json:
-  mmx speech synthesize --text "$text" --out "$file"
-```
-
-已存在的 mp3 自动跳过（安全重跑）。加 `--force` 强制重新合成。
-
-### Step 3：注入音频到 HTML
-
-在已生成的 HTML 中做两处修改：
-
-**1) 给每个 step 标注音频路径：**
-
-在每个 `.beat` 上添加 `data-audio-map` 属性，值为 JSON：
-
-```html
-<section class="beat" data-steps="2" data-audio-map='["audio/b4-s0.mp3","audio/b4-s1.mp3"]'>
-```
-
-单步节拍（无 data-steps）：
-
-```html
-<section class="beat" data-audio-map='["audio/b1-s0.mp3"]'>
-```
-
-**2) 添加播放模式切换 + 音频控制器脚本：**
-
-```javascript
-// 三种模式：manual / audio / auto
-// manual: 原始手动翻页，无音频
-// audio: 播放音频，但手动翻页
-// auto: 播放音频 + 音频结束自动翻页
-//
-// 切换方式：按 M 键循环，或 URL 参数 ?auto=1 / ?audio=1
-// 浏览器自动播放限制：auto 模式首次需要用户点击一次启动
-```
-
-音频控制器核心逻辑：
-
-```javascript
-let mode = 'manual'; // manual | audio | auto
-let audioEl = null;
-
-function playStepAudio(beat, step) {
-  if (mode === 'manual') return;
-  const map = JSON.parse(beat.dataset.audioMap || '[]');
-  const src = map[step];
-  if (!src) return;
-  if (audioEl) { audioEl.pause(); audioEl = null; }
-  audioEl = new Audio(src);
-  audioEl.play().catch(() => {});
-  if (mode === 'auto') {
-    audioEl.onended = () => setTimeout(advance, 200);
-  }
-}
-```
-
-- `advance()` 后调用 `playStepAudio(currentBeat, currentStep)`
-- 手动翻页时如果有音频在播，立即停止
-- 200ms 尾部缓冲，避免切换太突兀
-
-### Step 4：录制
-
-1. 用浏览器打开 HTML（建议 Chrome 全屏）
-2. 加 `?auto=1` 启用自动播放模式
-3. 启动录屏（QuickTime / OBS / Cmd+Shift+5）
-4. 点击一次启动，全片自动播完
-5. 停止录屏，裁头尾即可
-
-### TTS 备选方案
-
-如果不用 MiniMax，替换合成命令即可，接口约定：
-
-- 输入：文本（≤5000 字）+ 输出文件路径
-- 输出：mp3 文件
-- 示例（OpenAI TTS）：
+1. **交付形态**：单文件 HTML，1920×1080（4:3 用 1440×1080，改 `--stage-w/h`），点击/Space/→ 推进、← 回退、`R` 重播、`F` 全屏（禁止绑定 Cmd+F）。交付时提醒用户：默认浏览器打开，按 F 全屏录屏。
+2. **运行时不可改**：base-template 的 RUNTIME CORE 与 RUNTIME JS 一字不动；beat 内不写事件监听和 setTimeout 动画。
+3. **final-state-first**：CSS 静止态 = 最终帧；时间线只用 `gsap.from/fromTo` + `clearProps`。
+4. **每 beat 必登记**：`data-layout`（L 编号）、`data-core`、`data-primitive`；多步写 `data-steps` + 真实 `data-step` 元素；CPSE 原语写 `data-visual-demo`；关键容器加 `data-safe-box`。
+5. **风格场面必显性**：每个 beat 必须有 `style_scene` 和最终定格帧；至少使用 1 个所选风格签名组件或签名构图，核心 beat 至少 2 个。
+6. **token 纪律**：beat CSS 禁止硬编码颜色和字体名，只消费风格层变量和签名类。
+7. **屏幕文字短于口播**；中文标题短语断行、无单字孤行；禁止捏造数据来源引用。
+8. **舒展版式优先**：每 beat 最多 2 个大信息区；先定 primary / secondary / negative space，再写 CSS；禁止随机散点、中心堆叠、整屏大卡片、红框调试式外框。
+9. **编号语义分层**：章节装饰号、流程/清单编号、页码/folio 必须使用不同视觉角色。装饰号可作为浅色背景锚点，但不得压线、压字或贴近清单编号；流程编号必须贴近对应条目。不能通过删除装饰号或改成清单编号来规避压线问题。
+10. **四段式镜头编排**：核心 beat 必须能说明 `glance → reconstruct → push → lock`；先建立视觉重心，再让信息关系发生变化，再推进关键词/远近/焦点，最后记忆定格。Claim 页可省略 reconstruct，但必须说明原因。
+11. **运动预算**：每 beat 最多 1 个结构运动 + 2 组辅助出现 + 1 次锁定强调；动画总时长 < 口播时长（4 字/秒）；结束完全静止可截图。
+12. **逐项揭示**：口播逐个讲的清单，1 项 = 1 step（预算内合并到 2-3 步时按组揭示）；禁止多项同时 stagger 涌入。
+13. **验收以截图为准**：首屏、最密 beat、多步 beat 最后一步、收束页；任何真实重叠 = 失败，先改版式再重截。
+14. 生成后必须运行：
 
 ```bash
-curl -s https://api.openai.com/v1/audio/speech \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"model":"tts-1","input":"文本","voice":"alloy"}' \
-  --output "$file"
+node <SKILL_ROOT>/scripts/validate-motion-html.mjs path/to/output.html
 ```
 
----
+Playwright 可用时加跑 `scripts/check-layout-browser.mjs`；不可用改 Agent 浏览器/人工截图，不为装依赖阻塞交付。
 
-## 视觉动词 × 信息结构
-
-| 视觉动词 | 含义 | 信息结构适配 |
-|---|---|---|
-| 高亮 | 看这里 | 证据、引用、对比 |
-| 连接 | 有关联 | 关系、层级、流程 |
-| 增长 | 数量增加 | 数据、对比 |
-| 对比 | A和B不同 | 对比、数据 |
-| 推近 | 细节重要 | 证据、概念、引用 |
-| 展开 | 背后有逻辑 | 概念、层级、流程、结论 |
-| 流动 | 在系统中传递 | 流程、关系、时间线 |
-| 堆叠 | 证据/层级累积 | 证据、时间线 |
-| 计数 | 数字重要 | 数据 |
-| 灰化聚焦 | 先忽略其他 | 概念、关系、对比、结论 |
-
-## 4 段式镜头编排
-
-每个节拍的动画分 4 个阶段，点击后自动完成，然后停在 hero frame：
-
-1. **主视觉入场** — 建立画面主体
-2. **画面重构** — 布局变化或新元素加入
-3. **关键词强调** — 重点信息视觉突出
-4. **标注落位** — 辅助信息就位，画面定格
-
-这是编排思路，AI 用 GSAP timeline 自由实现。总时长 2-4 秒，各阶段留出呼吸感。
-
-## 4 种风格
-
-| 风格 | 适用 | 气质 |
-|---|---|---|
-| [newspaper-evidence](styles/newspaper-evidence.md) | 新闻、历史、政策、社会议题 | 证据、档案、纪录片 |
-| [apple-tech-gradient](styles/apple-tech-gradient.md) | AI工具、产品概念、抽象机制 | 克制keynote、概念展开 |
-| [finance-studio-cards](styles/finance-studio-cards.md) | 财经、商业、公司分析 | 演播室信息大屏 |
-| [editorial-magazine](styles/editorial-magazine.md) | 深度知识、文化、商业洞察 | 高级编辑版面 |
-
-## 生成规则
-
-1. 画面比例默认 16:9（1920×1080），可选 4:3（1440×1080）。手动翻页（click / Space / ←→）。比例在 Phase 3 锁风格时确认
-2. 单文件 HTML，GSAP 3 via CDN，无 npm
-3. 读风格模板获取 CSS 变量和组件类，以此为视觉基础
-4. 每个 beat 编写独立 CSS 类（如 b1-left, b2-grid）和独立 GSAP 动画
-5. 每个 beat 的 4 段式编排总时长 2-4 秒，各阶段有呼吸感
-6. 每个 beat 必须撑满画面——字号下限（16:9）：标题 ≥ 96px，正文 ≥ 25px，标签/辅助 ≥ 18px；4:3 时：标题 ≥ 72px，正文 ≥ 22px，标签 ≥ 16px
-7. .beat 用 `position:absolute;inset:0` 撑满画布，不加 padding；只有内部容器有 padding。beat 内部容器加 `overflow:hidden`，子元素禁止超出 stage 边界
-8. 节拍数量由内容决定，宁多不丢信息
-9. 截图/配图必须作为可见的主视觉展示，**不可**作为暗淡背景图（opacity<0.5 的 background-image）
-10. 截图/配图的 CSS 实现——区分两类图片：
-    - **信息截图**（UI 界面、代码截图、表格、对话截图等需要完整阅读的图片）：**禁止** `object-fit:cover`。容器用 `display:flex;align-items:center;justify-content:center` + padding 居中，img 用 `max-width:100%;max-height:100%;display:block` 自然缩放，配合 `border-radius + box-shadow` 做卡片包裹。容器**不设 background-color**，避免灰色背景框
-    - **装饰配图**（氛围图、纹理、人物特写等不需要完整阅读的图片）：可用 `.crop-frame` + `object-fit:cover`
-11. 信息元素布局必须对齐、有结构（网格/行列），**不可**随机散布（如绝对定位到随机百分比坐标）
-12. 渐进揭示与多步动画：口播内容有明确推进的节拍，用 `data-steps="N"` 标记，点击依次推进步骤，全部步骤完成后才进入下一个节拍。列表/标签/要点等多项内容必须逐项出现（1 项 = 1 步），不可同时 stagger 全部涌入
-13. 同一区域的元素不可重叠遮挡——大数字、标题、描述文字等必须分层排列，不允许 absolute 定位导致的文字重叠
-14. 分段式导航栏：必须放在 `#stage` 内部，用 `position:absolute;bottom:28px;left:50%;transform:translateX(-50%)`，**禁止 `position:fixed`**。显示 past / active / future 状态，支持点击跳转任意节拍
-15. body 背景色必须与 `#stage` 主背景色相同。body 用 `display:grid;place-items:center;min-height:100vh` 居中 stage。stage 用固定像素尺寸（16:9 为 1920×1080，4:3 为 1440×1080）+ JS `transform:scale(Math.min(innerWidth/W, innerHeight/H))` 缩放 + `transform-origin:center center`
-16. 4:3 布局适配：stage 宽 1440px，信息源 beat 的左图右文改为上图下文或 6:4 比例（图占 40%），单行文字 max-width 不超过 1200px
-17. 视觉重心：每个 beat 必须有一个主导元素（dominant element），禁止所有元素大小均匀平铺。具体要求：
-    - **图文 beat**：截图与文字必须有主次。截图作主视觉时 ≥ 画面面积 40%、边缘清晰；文字作主视觉时标题字号 ≥ 正文 3 倍。两者不可都是中等大小
-    - **纯文字 beat**：用超大标题或数字（16:9 ≥ 120px / 4:3 ≥ 88px）作视觉锚点，辅助文字明显缩小形成层级
-    - **检验**：标题与正文字号差距 < 2 倍 → 层级不够；截图缩到一半就看不清 → 截图太小
-
-## 动画决策树
-
-从口播内容推导动画，不要凭空添加装饰：
+## 资源导览
 
 ```
-口播内容 → 提取内容动作（对比？递增？展开？）→ 匹配视觉动词 → 选择信息结构
+jacky-motion2-0/
+├── SKILL.md                        ← 流程与总规则（本文件）
+├── assets/
+│   ├── base-template.html          ← 固化运行时基座（拷贝后只填 4 个注入点）
+│   └── styles/{id}.css             ← 风格层（当前主流程只使用 6 个重点风格）
+├── styles/{id}.md                  ← 风格卡（当前主流程只主动推荐 6 个重点风格）
+├── references/
+│   ├── script-audit.md             ← P1 审稿标准
+│   ├── storyboard.md               ← P2-P3 分镜与契约（单一入口）
+│   ├── beat-contract.md            ← 每 beat 生成前必须填写的完整合同
+│   ├── hybrid-quality-gate.md      ← 混合版审美门禁：风格 DNA / 版面 / 定格帧
+│   ├── information-primitives.md   ← 信息原语判断
+│   ├── layout-skeletons.md         ← L01-L10 版式骨架登记表 + 排版铁律
+│   ├── motion-language.md          ← 正向运动语法 + recipe + GSAP 片段
+│   ├── html-production.md          ← P4 装配规范（单一入口）
+│   └── quality-check.md            ← P5 验收清单
+└── scripts/
+    ├── validate-motion-html.mjs    ← 静态校验（登记表/属性/运行时完整性）
+    └── check-layout-browser.mjs    ← 浏览器布局校验（Playwright 可选）
 ```
-
-如果内容没有明确动作，退回到最基础的：居中概念 → 辅助信息浮出。绝不添加内容中不存在的运动。
-
-## 反 AI 视觉指纹
-
-以下是 AI 生成内容常见的低质量视觉模式，**必须避免**：
-
-| 禁止模式 | 替代方案 |
-|---|---|
-| 紫粉渐变背景 | 使用对应风格的背景色体系 |
-| 彩色左边框卡片 | 使用对应风格模板定义的卡片组件 |
-| Emoji 作为图标 | 纯文字标签或极简线性图标 |
-| 所有节拍同一动画 | 每个节拍独立编排 |
-| 居中大标题 + 3 列卡片 | 信息结构驱动布局（对比用左右、层级用上下、展开用中心外扩）|
-| 深色卡片面板铺满屏幕 | 空间层次感，概念在空间中展开 |
-| 彩虹色多强调色 | 使用对应风格的强调色，克制使用 |
-
-## 禁止
-
-1. 捏造数据、来源、引用
-2. 屏幕文字 = 完整口播（屏幕文字必须短于口播）
-3. 混用风格
-4. 装饰性动画（不帮助理解的运动）
-5. 全部节拍用同一种动画
-6. 整页同时出现（每个 beat 至少 2 个动画阶段）
-7. 节拍内所有内容自动播放无停顿——有内容推进的节拍应拆为多步
-8. 紫粉渐变、彩色左边框、Emoji 图标——参见「反 AI 视觉指纹」
-9. 多项内容同时 stagger 涌入——必须逐项渐进揭示
-10. 所有元素同等大小的平铺布局——每个 beat 必须有明确的大 > 中 > 小视觉层级，至少一个主导元素显著大于其余
 
 ## 长内容处理
 
 | 长度 | 处理 |
 |---|---|
-| 1-3 分钟 | 单一 storyboard，一个 HTML |
-| 3-8 分钟 | 拆章节，先做第 1 章确认视觉锚点 |
-| 8 分钟以上 | 拆成多集或多文件 |
+| 1-3 分钟 | 单一 storyboard，5-8 beat |
+| 3-8 分钟 | 主轨压缩 + 连续对象，9-14 beat；细节留给 B-roll |
+| 8 分钟以上 | 拆多集或多文件；单文件只做总览主轨 |
