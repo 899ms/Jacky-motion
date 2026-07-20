@@ -10,8 +10,14 @@ core_message:
 information_primitive: Claim / Contrast / Path / System / Evidence
 spoken_duration_estimate:
 screen_text:
-track_role: main_track / narrator_only / b_roll_window
-b_roll_window:
+track_role: motion / broll
+srt_timing:
+  cue_range:
+  start_ms:
+  end_ms:
+b_roll:
+  title:
+  frame_subject:
 
 composition:
   layout_skeleton:
@@ -55,6 +61,7 @@ visual_demo:
 
 step_contract:
   - step:
+    at_ms:
     spoken_trigger:
     primary_focus:
     visual_demo:
@@ -81,7 +88,9 @@ validation_risks:
 
 - `core_message`: 只允许一句话，不写并列观点。
 - `screen_text`: 必须短于口播，只做视觉索引。
-- `track_role`: 默认 `main_track`；解释句、过渡句、例子细节优先进入 `narrator_only` 或 `b_roll_window`。
+- `track_role`: 只允许 `motion` 或 `broll`。解释句和过渡句由当前 motion beat 承接；需要真实界面、操作、素材或案例时才进入 broll。
+- `srt_timing`: 必须来自真实 SRT cue。`start_ms < end_ms`；相邻 beat 不重叠，空档不超过 500ms。
+- `b_roll`: `track_role=broll` 时必填，标题写 4-14 个汉字的具体展示对象；使用 `LX-BROLL`，不填写普通 camera_acts 与 step_contract。
 - `layout_skeleton`: 必须是 L01-L10 或有登记说明的 `LX-*`。
 - `style_scene`: 写清这页靠什么识别所选风格，例如“浅蓝产品页 + 主截图 + 蓝色路径线”，不能写“好看”。
 - `primary_zone`: 主视觉区域，说明左/右/上/下/全轴位置和大致占比。
@@ -93,7 +102,7 @@ validation_risks:
 - `changed_relation`: 必须说明信息关系如何变化；只写“淡入/出现/上移”不合格。
 - `motion_budget`: 每 beat 最多 1 个结构运动 + 2 组辅助出现 + 1 次最终强调。
 - `visual_demo`: Contrast / Path / System / Evidence 必填；必须是具体演示，如 `path-line-draw` / `split-compare` / `evidence-spotlight`。
-- `step_contract`: 多步 beat 必填；每步必须有 `primary_focus`、`visual_demo`、`persistent_context`、`final_state`。
+- `step_contract`: 多步 motion beat 必填；每步必须有 `at_ms`、`primary_focus`、`visual_demo`、`persistent_context`、`final_state`。step 2..N 的 `at_ms` 严格递增并落在 beat 时间内。
 - `continuity_object`: 长稿优先保留跨 beat 对象，让画面像连续演示而不是翻 PPT。
 - `validation_risks`: 必须写真实风险，不能全写“无”。
 

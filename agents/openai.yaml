@@ -1,4 +1,4 @@
 interface:
-  display_name: "Jacky Motion 2.0 - 信息动画导演"
-  short_description: "5阶段流水线：审稿→分镜→锁风格→装配HTML→验收。把口播稿变成可录屏的 16:9 信息动画 HTML，6 个重点风格方向，点击推进。"
-  default_prompt: "使用 Jacky Motion 2.0，把这段口播稿走一遍信息动画流水线：审稿、分镜、锁风格、装配HTML、验收。"
+  display_name: "Jacky Motion 2.0 SRT - 自动录屏版"
+  short_description: "按 SRT 自动播放信息动画，并生成带标题的 B-roll 录屏画框。"
+  default_prompt: "使用 $jacky-motion2-0-srt，把这份口播稿和 SRT 生成可直接录屏的自动播放 HTML，并为真实展示区间生成 B-roll 画框。"

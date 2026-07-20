@@ -8,18 +8,18 @@
 <!-- {{FONT_LINKS}}：替换为所选风格 css 文件头部注释中给出的 <link> 字体行 -->
 <!--
 ═══════════════════════════════════════════════════════════════════
-Jacky Motion 2.1 · 基座模板（生成契约速览，完整规范见 references/html-production.md）
+Jacky Motion 2.0 SRT · 自动录屏基座（完整规范见 references/html-production.md）
 
 这份文件是【完整可运行的运行时】。生成成片时你只做 4 件事：
   1. 替换 STYLE LAYER 块为所选风格的 assets/styles/{id}.css 内容
   2. 在 BEATS 注释处写入各 <section class="beat">（版式骨架从
      references/layout-skeletons.md 选用并登记 data-layout）
   3. 在 BEAT CSS 注释处写各 beat 的独立 CSS（.b1 / .b2 前缀）
-  4. 在 TL 注册表里为需要签名动效的 beat 写 enter/step 时间线
+  4. 给每个 beat 写 SRT 毫秒属性，在 TL 注册表写 enter/step 时间线
 
 【绝对不要改动】RUNTIME CORE 的 CSS 和 RUNTIME 的 JS。
-运行时已提供：舞台缩放 / beat+step 状态机 / 键盘与点击推进 /
-F 全屏 / R 重播当前 beat / 默认入场动效 / GSAP 失败降级。
+运行时已提供：舞台缩放 / SRT 主时钟 / beat+step 状态机 / 自动追时 /
+全屏倒数 / 暂停跳转 / B-roll 画框 / 默认入场动效 / GSAP 失败降级。
 
 step 契约（final-state-first，稳定性的根）：
   - 元素写 data-step="N"（N≥2）→ 第 N 步才出现；第 1 步内容不写 data-step
@@ -65,6 +65,24 @@ body{
 .hud-dot{width:6px;height:6px;border-radius:50%;background:var(--text);opacity:.45}
 .hud-dot.cur{opacity:1}
 .hud-hint{font-size:12px;opacity:.12;font-family:var(--font-mono);letter-spacing:.04em}
+.hud-time{font-size:12px;opacity:.16;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.autoplay-running .hud{opacity:0}
+
+/* 录屏准备层：只在开始、暂停或重播倒数时出现 */
+.autoplay-gate{
+  position:absolute;inset:0;z-index:120;display:grid;place-items:center;
+  background:var(--surface);color:var(--text);
+}
+.autoplay-gate[hidden]{display:none}
+.autoplay-panel{display:grid;justify-items:center;gap:28px;text-align:center}
+.autoplay-kicker{font-size:18px;color:var(--text-mute);font-family:var(--font-mono)}
+.autoplay-title{font:var(--hero-weight) 72px/1.12 var(--font-display)}
+.autoplay-start{
+  min-width:320px;padding:18px 30px;border:var(--card-border);border-radius:var(--r-card);
+  background:var(--text);color:var(--surface);font:600 22px/1.2 var(--font-body);cursor:pointer;
+}
+.autoplay-controls{font-size:17px;line-height:1.5;color:var(--text-mute)}
+.autoplay-count{font:var(--num-weight) 200px/1 var(--num-font);color:var(--accent)}
 
 /* ════════════════ PRIMITIVES（风格层通过变量驱动，勿改结构） ════════════════ */
 .kicker{
@@ -116,6 +134,24 @@ body{
 /* 截图容器：信息截图禁止 cover 裁切 */
 .shot{display:grid;place-items:center;overflow:hidden}
 .shot img{max-width:100%;max-height:100%;display:block;border-radius:calc(var(--r-card)*.8)}
+/* B-roll 录屏画框：跨风格只消费 token，不允许 beat 临场改结构 */
+.broll-scene{display:grid;grid-template-rows:auto 1fr;gap:48px;padding:72px 110px 62px}
+.broll-heading{display:flex;align-items:center;justify-content:space-between;gap:48px}
+.broll-index{font:600 18px/1.2 var(--font-mono);color:var(--accent);letter-spacing:.08em}
+.broll-title{font:var(--hero-weight) 42px/1.18 var(--font-display);color:var(--text);text-align:right}
+.broll-frame{
+  position:relative;align-self:stretch;min-height:0;border:2px solid var(--accent);
+  border-radius:var(--r-card);background:var(--surface-2);box-shadow:var(--card-shadow);
+}
+.broll-frame::after{
+  content:"录屏画面";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font:600 22px/1.2 var(--font-mono);color:var(--text-mute);opacity:.5;
+}
+.broll-corner{position:absolute;width:28px;height:28px;border-color:var(--accent)}
+.broll-corner-a{left:18px;top:18px;border-left:3px solid var(--accent);border-top:3px solid var(--accent)}
+.broll-corner-b{right:18px;top:18px;border-right:3px solid var(--accent);border-top:3px solid var(--accent)}
+.broll-corner-c{right:18px;bottom:18px;border-right:3px solid var(--accent);border-bottom:3px solid var(--accent)}
+.broll-corner-d{left:18px;bottom:18px;border-left:3px solid var(--accent);border-bottom:3px solid var(--accent)}
 /* ════════════════ END PRIMITIVES ════════════════ */
 
 /* ════════════════ STYLE LAYER（生成时整块替换为 assets/styles/{id}.css；
@@ -146,7 +182,8 @@ body{
 
   <!-- ════════════ BEATS（生成时写入） ════════════
   <section class="beat" id="b1"
-    data-layout="L01" data-steps="2"
+    data-kind="motion" data-layout="L01" data-steps="2"
+    data-start-ms="0" data-end-ms="8400" data-step-times="3600"
     data-core="一句话核心信息"
     data-primitive="Claim">
     <div class="scene b1">
@@ -157,9 +194,20 @@ body{
   </section>
   ════════════════════════════════════════════ -->
 
+  <div class="autoplay-gate" id="autoplayGate" data-no-advance>
+    <div class="autoplay-panel">
+      <div class="autoplay-kicker">SRT TIMELINE READY</div>
+      <h1 class="autoplay-title">准备录屏</h1>
+      <button class="autoplay-start" id="autoplayStart" type="button">进入全屏 · 倒数 3 秒</button>
+      <p class="autoplay-controls">Space 暂停/继续 · ←/→ 跳 5 秒 · R 从头重播 · F 全屏</p>
+      <div class="autoplay-count" id="autoplayCount" hidden>3</div>
+    </div>
+  </div>
+
   <div class="hud" data-no-advance>
     <div class="hud-dots" id="hudDots"></div>
-    <div class="hud-hint">Click / Space / → 前进 · ← 后退 · R 重播 · F 全屏</div>
+    <div class="hud-hint">SRT AUTO · Space 暂停/继续 · ←/→ 跳 5 秒 · R 重播 · F 全屏</div>
+    <div class="hud-time" id="hudTime">00:00 / 00:00</div>
   </div>
 </main>
 
@@ -169,7 +217,7 @@ document.documentElement.classList.add('js');
 
 const stage = document.getElementById('stage');
 const beats = [...document.querySelectorAll('.beat')];
-const state = { beat: 0, step: 1 };
+const state = { beat: -1, step: 1 };
 const HAS_GSAP = typeof window.gsap !== 'undefined';
 
 /* ---- 舞台缩放 ---- */
@@ -291,11 +339,18 @@ function replayBeat(){ enterBeat(state.beat, false); }
 /* ---- 输入 ---- */
 stage.addEventListener('click', e => {
   if (e.target.closest('[data-no-advance]')) return;
-  advance();
+  if (!AUTO_ENABLED) advance();
 });
 addEventListener('keydown', e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullscreen(); return; }
+  if (AUTO_ENABLED) {
+    if (e.key === 'r' || e.key === 'R') { e.preventDefault(); restartAutoplay(); return; }
+    if (e.key === ' ') { e.preventDefault(); toggleAutoplay(); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); seekAutoplay(5000); return; }
+    if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); seekAutoplay(-5000); }
+    return;
+  }
   if (e.key === 'r' || e.key === 'R') { e.preventDefault(); replayBeat(); return; }
   if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); advance(); }
   if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); back(); }
@@ -333,8 +388,197 @@ document.addEventListener('fullscreenchange', scaleStage);
 const TL = {};
 /* {{BEAT_TIMELINES}} */
 
+/* ---- SRT 自动播放主时钟 ---- */
+const schedule = beats.map((beat, index) => ({
+  beat,
+  index,
+  startMs: Number(beat.dataset.startMs),
+  endMs: Number(beat.dataset.endMs),
+  stepTimes: beat.dataset.stepTimes
+    ? beat.dataset.stepTimes.split(',').map(v => Number(v.trim())).filter(Number.isFinite)
+    : []
+}));
+const AUTO_ENABLED = schedule.length > 0 && schedule.every(item =>
+  Number.isFinite(item.startMs) && Number.isFinite(item.endMs) && item.endMs > item.startMs
+);
+const durationMs = AUTO_ENABLED ? Math.max(...schedule.map(item => item.endMs)) : 0;
+const gate = document.getElementById('autoplayGate');
+const startButton = document.getElementById('autoplayStart');
+const gateTitle = gate.querySelector('.autoplay-title');
+const gateKicker = gate.querySelector('.autoplay-kicker');
+const gateControls = gate.querySelector('.autoplay-controls');
+const countdownEl = document.getElementById('autoplayCount');
+const hudTime = document.getElementById('hudTime');
+const playback = {
+  running: false,
+  started: false,
+  offsetMs: 0,
+  startedAt: 0,
+  frame: 0,
+  countdownFrame: 0,
+  countdownToken: 0
+};
+
+function clampTime(ms){ return Math.max(0, Math.min(ms, durationMs)); }
+function formatClock(ms){
+  const total = Math.max(0, Math.floor(ms / 1000));
+  return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+function updateHudTime(ms){
+  if (hudTime) hudTime.textContent = formatClock(ms) + ' / ' + formatClock(durationMs);
+}
+function currentAutoplayTime(){
+  return playback.running
+    ? clampTime(playback.offsetMs + performance.now() - playback.startedAt)
+    : clampTime(playback.offsetMs);
+}
+
+function renderAt(ms, animate){
+  if (!AUTO_ENABLED) return;
+  const t = clampTime(ms);
+  let item = schedule[0];
+  for (const candidate of schedule) {
+    if (candidate.startMs <= t) item = candidate;
+    else break;
+  }
+  const targetStep = Math.min(
+    stepsOf(item.beat),
+    1 + item.stepTimes.filter(stepMs => stepMs <= t).length
+  );
+
+  if (state.beat !== item.index) {
+    if (animate && targetStep === 1) {
+      enterBeat(item.index, false);
+    } else {
+      state.beat = item.index;
+      settle(item.beat);
+      state.step = targetStep;
+      applyState();
+    }
+  } else if (state.step !== targetStep) {
+    if (animate && targetStep === state.step + 1) {
+      state.step = targetStep;
+      applyState();
+      playStep(targetStep);
+    } else {
+      settle(item.beat);
+      state.step = targetStep;
+      applyState();
+    }
+  }
+  updateHudTime(t);
+}
+
+function autoplayTick(){
+  if (!playback.running) return;
+  const t = currentAutoplayTime();
+  renderAt(t, true);
+  if (t >= durationMs) {
+    playback.running = false;
+    playback.offsetMs = durationMs;
+    document.body.classList.remove('autoplay-running');
+    renderAt(durationMs, false);
+    settle(beats[state.beat]);
+    applyState();
+    return;
+  }
+  playback.frame = requestAnimationFrame(autoplayTick);
+}
+
+function startAutoplayClock(){
+  if (!AUTO_ENABLED || playback.offsetMs >= durationMs) playback.offsetMs = 0;
+  playback.started = true;
+  playback.running = true;
+  playback.startedAt = performance.now();
+  gate.hidden = true;
+  document.body.classList.add('autoplay-running');
+  if (HAS_GSAP) gsap.globalTimeline.resume();
+  cancelAnimationFrame(playback.frame);
+  playback.frame = requestAnimationFrame(autoplayTick);
+}
+
+function pauseAutoplay(){
+  if (!playback.running) return;
+  playback.offsetMs = currentAutoplayTime();
+  playback.running = false;
+  cancelAnimationFrame(playback.frame);
+  document.body.classList.remove('autoplay-running');
+  if (HAS_GSAP) gsap.globalTimeline.pause();
+  renderAt(playback.offsetMs, false);
+}
+
+function toggleAutoplay(){
+  if (!AUTO_ENABLED) return;
+  if (!playback.started) { startCountdown(); return; }
+  if (playback.running) pauseAutoplay();
+  else startAutoplayClock();
+}
+
+function seekAutoplay(deltaMs){
+  if (!AUTO_ENABLED) return;
+  const wasRunning = playback.running;
+  if (wasRunning) playback.offsetMs = currentAutoplayTime();
+  playback.offsetMs = clampTime(playback.offsetMs + deltaMs);
+  playback.startedAt = performance.now();
+  renderAt(playback.offsetMs, false);
+}
+
+function showCountdownMode(active){
+  gate.hidden = false;
+  gateKicker.hidden = active;
+  gateTitle.hidden = active;
+  startButton.hidden = active;
+  gateControls.hidden = active;
+  countdownEl.hidden = !active;
+}
+
+function startCountdown(){
+  if (!AUTO_ENABLED) return;
+  pauseAutoplay();
+  cancelAnimationFrame(playback.countdownFrame);
+  const token = ++playback.countdownToken;
+  playback.started = false;
+  playback.offsetMs = 0;
+  renderAt(0, false);
+  showCountdownMode(true);
+  const countdownEnd = performance.now() + 3000;
+
+  function countdownTick(now){
+    if (token !== playback.countdownToken) return;
+    const remaining = Math.max(0, countdownEnd - now);
+    countdownEl.textContent = String(Math.max(1, Math.ceil(remaining / 1000)));
+    if (remaining <= 0) {
+      showCountdownMode(false);
+      startAutoplayClock();
+      return;
+    }
+    playback.countdownFrame = requestAnimationFrame(countdownTick);
+  }
+  playback.countdownFrame = requestAnimationFrame(countdownTick);
+}
+
+function restartAutoplay(){ startCountdown(); }
+
+startButton.addEventListener('click', () => {
+  if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+  startCountdown();
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && playback.running) renderAt(currentAutoplayTime(), false);
+});
+
 /* ---- 启动 ---- */
-if (beats.length) enterBeat(0, false);
+if (beats.length) {
+  if (AUTO_ENABLED) {
+    renderAt(0, false);
+    updateHudTime(0);
+  } else {
+    gate.hidden = true;
+    enterBeat(0, false);
+  }
+}
 </script>
 </body>
 </html>

@@ -54,6 +54,11 @@ const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 await page.goto(fileUrl);
 await page.waitForTimeout(600);
+await page.evaluate(() => {
+  const gate = document.getElementById("autoplayGate");
+  if (gate) gate.hidden = true;
+  document.body.classList.remove("autoplay-running");
+});
 
 const beatCount = await page.locator(".beat").count();
 if (beatCount === 0) failures.push("No .beat sections found.");

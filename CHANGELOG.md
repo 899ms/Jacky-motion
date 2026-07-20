@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 - 2026-07-20
+
+- Upgraded the skill to the independent Jacky Motion 2.0 SRT automatic-recording workflow.
+- Added SRT parsing and made subtitle timestamps the single source of truth for beat and step timing.
+- Added a fourth confirmation gate for locking motion, step, and B-roll coverage before HTML assembly.
+- Added automatic fullscreen startup, a three-second countdown, pause/resume, five-second seeking, and deterministic replay.
+- Added first-class B-roll beats with titled recording frames for intervals that should show real product footage.
+- Extended static and browser validation for time coverage, overlaps, gaps, and autoplay state.
+- Fixed stretched `paper-collage` kicker labels by making them hug their text content inside Grid and Flex layouts.
+
 ## 2.0.0 - 2026-07-14
 
 - Rebuilt Jacky Motion around the 2.1 Hybrid architecture while keeping the public display name at 2.0.

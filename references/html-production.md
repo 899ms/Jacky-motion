@@ -1,22 +1,23 @@
 # HTML 生产规范（Phase 4 单一入口）
 
-运行时已固化在 [assets/base-template.html](../assets/base-template.html)。你不写状态机、不写缩放、不写键盘逻辑、不写降级——**只填内容**。生产 = 组装 5 层：基座（不动）+ 风格层（整块替换）+ 版式骨架（登记选用）+ 审美场面（hybrid quality gate）+ 时间线层（签名动效）。
+运行时已固化在 [assets/base-template.html](../assets/base-template.html)。你不写状态机、不写缩放、不写键盘逻辑、不写降级——**只填内容**。生产 = 组装 6 层：基座（不动）+ 风格层（整块替换）+ 版式骨架（登记选用）+ 审美场面（hybrid quality gate）+ SRT 时钟层 + TL 签名动效层。
 
 ## 装配步骤
 
 1. **拷贝基座**：把 `assets/base-template.html` 复制为输出文件。
 2. **注入风格**：用所选 `assets/styles/{id}.css` 的全部内容替换 `STYLE LAYER` 块内部；**保留 `STYLE LAYER` / `END STYLE LAYER` / `BEAT CSS` 等区块标记注释**（校验脚本依赖它们定位区域）；把该 css 头部注释里的 `FONT_LINKS` 行插入 `<head>` 占位处；改 `<title>`。
-3. **写 beats**：按分镜表逐个 beat，从 [layout-skeletons.md](layout-skeletons.md) 取对应 L 编号骨架，改内容、登记 `data-layout`，写 `data-core` / `data-primitive` / `data-steps`；CPSE 原语写 `data-visual-demo`；关键容器加 `data-safe-box`。
+3. **写 beats**：按分镜表逐个 beat，从 [layout-skeletons.md](layout-skeletons.md) 取对应 L 编号骨架，改内容、登记 `data-kind` / `data-layout` / `data-core` / `data-primitive` / `data-steps` / `data-start-ms` / `data-end-ms`；多步 motion beat 写 `data-step-times`；CPSE 原语写 `data-visual-demo`；关键容器加 `data-safe-box`。B-roll 按 [srt-autoplay.md](srt-autoplay.md) 使用固定 `LX-BROLL` 结构。
 4. **写 beat CSS**：写入 `BEAT_CSS` 区，每 beat 独立前缀（`.b1` `.b2`…）。先按 [hybrid-quality-gate.md](hybrid-quality-gate.md) 的“发布会级版式 harness”定 primary / secondary / negative space，再写字号和材质；不只套 L 骨架或 `.card`。颜色、字体、卡片材质**只用风格层的 token 和签名类，禁止硬编码 hex 和字体名**。
 5. **写时间线**：按 [motion-language.md](motion-language.md) 在 `TL` 注册表为核心 beat 写 `enter` / `step`。至少 2/3 的核心 beat 要有签名动效，并能对应契约里的 `glance → reconstruct → push → lock`；其余可用运行时默认入场兜底，但仍要有明确最终定格。
-6. **自检 + 校验**：过下方检查单，跑校验脚本，截图验收（见 [quality-check.md](quality-check.md)）。
+6. **校准 SRT**：按 [srt-autoplay.md](srt-autoplay.md) 的覆盖表核对所有毫秒属性。不得把 SRT 原文渲染成字幕层。
+7. **自检 + 校验**：过下方检查单，跑校验脚本，截图验收（见 [quality-check.md](quality-check.md)）。
 
 ## 运行时契约（写内容时必须遵守）
 
 - **final-state-first**：所有元素的 CSS 静止态 = 最终可见态。时间线只用 `gsap.from`/`fromTo` + `clearProps`；禁止用 `gsap.to` 把元素留在非 CSS 状态。
 - **step 声明式**：第 N 步才出现的元素写 `data-step="N"`（N≥2）；第 1 步内容不写。需要灰化退场的写 `data-dim-at="N"`。状态高亮用 CSS `.beat[data-current-step="N"]` 选择器。
-- 运行时自动处理：step 可见性、回退直落终态、beat 切换 settle、HUD、F 全屏、R 重播。**不要在 beat 里写自己的事件监听和 setTimeout 动画**；交互控件加 `data-no-advance`。
-- 交付说明必须提醒用户：默认浏览器打开，`F` 全屏录屏，`R` 重播当前 beat，`Esc` 退出全屏。
+- 运行时自动处理：SRT 主时钟、step 可见性、时间跳转、后台追时、beat 切换 settle、HUD、全屏与重播。**不要在 beat 里写自己的事件监听和 setTimeout 动画**；交互控件加 `data-no-advance`。
+- 交付说明必须提醒用户：先开始系统录屏，再点击“准备录屏”；倒数结束自动播放。Space 暂停/继续，←/→ 跳 5 秒，`R` 从头重播，`Esc` 退出全屏。
 
 ## 屏幕文字
 
@@ -24,8 +25,15 @@
 - 主标题 2-12 个汉字（最多 18）；副标题 1 行 ≤26 字；卡片标题 2-8 字；卡片说明 ≤14 字
 - 一屏只表达一个核心信息；长句拆 beat 或进口播
 - 中文大标题手动按短语断行（`<br>`），每行 4-9 字，禁止单字孤行
-- 最终可见文字禁止出现 `B-roll` / `旁白窗口` / `可配口播` 等剪辑提示
+- 普通 motion beat 的最终可见文字禁止出现 `B-roll` / `旁白窗口` / `可配口播` 等剪辑提示；只有 `data-kind="broll"` 的正式画框允许显示 `B-ROLL` 标签与具体小标题
 - 禁止捏造数据、来源、引用
+
+## B-roll 画框
+
+- 使用基座内置 `.broll-scene`、`.broll-heading`、`.broll-frame` 和四个 `.broll-corner`，不临场发明版式。
+- 标题必须具体说明录什么，不能写“素材待补”“这里放录屏”。
+- 画框是功能边界，允许明显但不能使用调试红框；颜色、字体、材质继续消费当前风格 token。
+- B-roll beat 不叠加普通卡片、解释段落或四段式主轨动画，只做短促入场后稳定停留。
 
 ## 风格场面
 
@@ -82,10 +90,11 @@ numbering_map:
 1. 最终定格帧长什么样？它能独立成立吗？
 2. 第一眼看哪里？主视觉边界在哪？
 3. `data-step` 划分和契约的 steps 一致吗？
-4. 这个 beat 的运动预算：1 个结构运动 + ≤2 组辅助 + 1 次锁定，动画总时长 < 口播时长？
-5. 风格签名组件或签名构图出现了吗？
-6. 风险点（重叠/长标题/连线穿卡）避开了吗？
-7. 如果有编号，章节装饰号、流程编号、folio 是否有清晰语义区分，且没有压线？
+4. `data-start-ms` / `data-end-ms` / `data-step-times` 是否来自确认过的 SRT 覆盖表？
+5. 这个 beat 的运动预算：1 个结构运动 + ≤2 组辅助 + 1 次锁定，动画总时长 < 口播时长？
+6. 风格签名组件或签名构图出现了吗？
+7. 风险点（重叠/长标题/连线穿卡）避开了吗？
+8. 如果有编号，章节装饰号、流程编号、folio 是否有清晰语义区分，且没有压线？
 
 ## 四段式 TL 落地
 

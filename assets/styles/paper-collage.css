@@ -32,7 +32,8 @@ FONT_LINKS：
 }
 .kicker{
   font-family:var(--font-display);color:#fff;background:var(--accent);
-  padding:6px 18px;border-radius:999px;display:inline-block;transform:rotate(-1.5deg);
+  padding:6px 18px;border-radius:999px;display:inline-flex;align-items:center;
+  width:max-content;max-width:100%;white-space:nowrap;transform:rotate(-1.5deg);
   box-shadow:3px 3px 0 rgba(38,34,28,.85);letter-spacing:.04em;
 }
 .hero-title{font-family:var(--font-display);line-height:1.18}
