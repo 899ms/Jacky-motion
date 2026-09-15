@@ -2,7 +2,7 @@
 name: jacky-motion2-0
 description: Jacky Motion 2.2 Hybrid：把中文口播稿变成可录屏的信息动画单文件 HTML。可选纯 HTML 手动推进（16:9 或 3:4）或配合 SRT 自动播放（16:9，含 B-roll 录屏画框）。流程为审稿、分镜、锁风格、装配与视觉验收；七种重点风格共享同一套版式、动效与质量门禁。
 metadata:
-  version: "2.2.0"
+  version: "2.2.1"
 ---
 
 # Jacky Motion · 口播信息动画导演

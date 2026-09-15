@@ -5,8 +5,9 @@
 Jacky Motion 不是 PPT 模板，也不把全文做成大字幕。它先拆解口播的信息骨架，再用明确的视觉中心、画面重构、渐进揭示和记忆定格，让观众跟着口播节奏理解复杂内容。
 
 <p align="center">
-  <img src="docs/gallery/apple-tech-gradient.png" alt="Apple Tech Gradient 信息动画示例" width="49%">
-  <img src="docs/gallery/paper-craft-studio.png" alt="Paper Craft Studio 信息动画示例" width="49%">
+  <img src="docs/gallery/apple-tech-gradient-1.png" alt="Apple Tech Gradient 开场落点" width="32.5%">
+  <img src="docs/gallery/paper-craft-studio-2.png" alt="Paper Craft Studio 关系重构" width="32.5%">
+  <img src="docs/gallery/paper-collage-3.png" alt="Paper Collage 最终定格" width="32.5%">
 </p>
 
 ## 两种运行模式
@@ -30,59 +31,126 @@ Jacky Motion 不是 PPT 模板，也不把全文做成大字幕。它先拆解�
 - **自动录屏**：SRT 模式提供倒计时、暂停、跳转、重播和 B-roll 画框。
 - **可验证交付**：静态校验 + 真实浏览器截图检查，不以“代码能打开”代替视觉验收。
 
-## 风格示意
+## 七种风格实测
 
-以下均为 Jacky Motion 实际生成并经过浏览器验收的终帧。静态图展示排版与视觉语言，完整 HTML 还包含逐步推进和画面重构动画。
+下面 21 张图全部使用当前 `2.2.1` 规则重新生成，并在 1920×1080 真实浏览器中验收，不复用历史版本截图。每种风格固定展示三种能力：
 
-### Paper Craft Studio
-
-适合课程、教育解释、亲和品牌与友好型产品说明。
-
-![Paper Craft Studio](docs/gallery/paper-craft-studio.png)
-
-### Paper Collage
-
-适合小红书、测评、经验清单与生活方式内容。
-
-![Paper Collage](docs/gallery/paper-collage.png)
-
-### Sketch Note
-
-适合科普、教程、新手向方法讲解。
-
-![Sketch Note](docs/gallery/sketch-note.png)
-
-### Editorial Magazine
-
-适合深度观点、文化与商业洞察。
-
-![Editorial Magazine](docs/gallery/editorial-magazine.png)
+1. **开场落点**：第一眼能否立刻找到核心判断。
+2. **关系重构**：流程、对比或层级能否舒展推进。
+3. **最终定格**：动画停止后能否留下可独立截图的记忆帧。
 
 ### Apple Tech Gradient
 
-适合 AI 工具、产品概念与抽象机制。
+**适合内容：** AI 工具、产品概念、抽象机制、发布会式观点。
 
-![Apple Tech Gradient](docs/gallery/apple-tech-gradient.png)
+**视觉语言：** 黑色空间、低强度暖光、SF 系无衬线与克制毛玻璃。热力橙只标记关键判断，留白用于建立聚光感，不把内容塞进卡片墙。
+
+**表达强项：** 用尺度、远近和玻璃层级呈现抽象概念从模糊到清晰的过程。
+
+<p align="center">
+  <img src="docs/gallery/apple-tech-gradient-1.png" alt="Apple Tech Gradient 开场落点" width="32.5%">
+  <img src="docs/gallery/apple-tech-gradient-2.png" alt="Apple Tech Gradient 关系重构" width="32.5%">
+  <img src="docs/gallery/apple-tech-gradient-3.png" alt="Apple Tech Gradient 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 大标题与主玻璃面板　　02 关系重构 · 三段理解路径　　03 最终定格 · 单一结论锁定</sub></p>
+
+### Finance Studio Cards
+
+**适合内容：** 财经解读、商业模式、公司分析、指标关系与风险判断。
+
+**视觉语言：** 黑蓝演播室信息屏、等宽主数字、青绿传导路径；琥珀色只承担风险语义。主指标最亮，辅助指标主动退后。
+
+**表达强项：** 先让观众看到主数字，再沿独立连接轨道理解数字背后的因果链。
+
+<p align="center">
+  <img src="docs/gallery/finance-studio-cards-1.png" alt="Finance Studio Cards 开场落点" width="32.5%">
+  <img src="docs/gallery/finance-studio-cards-2.png" alt="Finance Studio Cards 关系重构" width="32.5%">
+  <img src="docs/gallery/finance-studio-cards-3.png" alt="Finance Studio Cards 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 主 KPI 与辅助指标　　02 关系重构 · 指标传导路径　　03 最终定格 · 决策结论与风险阈值</sub></p>
+
+### Editorial Magazine
+
+**适合内容：** 深度观点、文化观察、商业洞察与人物叙事。
+
+**视觉语言：** 中文衬线标题、编辑红、巨型描边页码、拉引和规则线。版面像经过主编重排的杂志跨页，而不是普通图文卡片。
+
+**表达强项：** 用标题、拉引和章节秩序控制阅读先后，让观点显得有重量但不拥挤。
+
+<p align="center">
+  <img src="docs/gallery/editorial-magazine-1.png" alt="Editorial Magazine 开场落点" width="32.5%">
+  <img src="docs/gallery/editorial-magazine-2.png" alt="Editorial Magazine 关系重构" width="32.5%">
+  <img src="docs/gallery/editorial-magazine-3.png" alt="Editorial Magazine 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 标题与拉引　　02 关系重构 · 三条编辑规则　　03 最终定格 · 跨页式观点收束</sub></p>
+
+### Newspaper Evidence
+
+**适合内容：** 新闻事件、历史、政策、案例拆解、证据链和调查复盘。
+
+**视觉语言：** 黑白米色纸面、衬线剪报、来源编号、胶带、短红线与结论印章。所有材料明确标注为真实来源或版式示意。
+
+**表达强项：** 先呈现材料，再让批注贴合证据，最后盖章锁定有边界的结论。
+
+<p align="center">
+  <img src="docs/gallery/newspaper-evidence-1.png" alt="Newspaper Evidence 开场落点" width="32.5%">
+  <img src="docs/gallery/newspaper-evidence-2.png" alt="Newspaper Evidence 关系重构" width="32.5%">
+  <img src="docs/gallery/newspaper-evidence-3.png" alt="Newspaper Evidence 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 主证据剪报　　02 关系重构 · 一主两辅证据板　　03 最终定格 · 调查结论盖章</sub></p>
+
+### Paper Craft Studio
+
+**适合内容：** 课程、教育解释、亲和品牌与友好型产品说明。
+
+**视觉语言：** 暖纸工作台、奶油纸面、蓝黄绿模块和轻微错层。手作感来自纸张材质与裁边，不依赖幼稚插画或随意倾斜。
+
+**表达强项：** 把复杂内容像整理纸片一样分层归位，特别适合步骤、系统和模块关系。
+
+<p align="center">
+  <img src="docs/gallery/paper-craft-studio-1.png" alt="Paper Craft Studio 开场落点" width="32.5%">
+  <img src="docs/gallery/paper-craft-studio-2.png" alt="Paper Craft Studio 关系重构" width="32.5%">
+  <img src="docs/gallery/paper-craft-studio-3.png" alt="Paper Craft Studio 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 主纸面与三层信息　　02 关系重构 · 三步模块展开　　03 最终定格 · 纸堆式结论收束</sub></p>
+
+### Paper Collage
+
+**适合内容：** 小红书、测评、经验清单、生活方式和种草内容。
+
+**视觉语言：** 复古纸底、厚边贴纸、硬阴影、胶带、票据与马克笔。纸片可以有角度，但版面轴线和注意力顺序保持稳定。
+
+**表达强项：** 在保持社交内容活力的同时，用贴纸层级完成问题、理由和行动方向的渐进揭示。
+
+<p align="center">
+  <img src="docs/gallery/paper-collage-1.png" alt="Paper Collage 开场落点" width="32.5%">
+  <img src="docs/gallery/paper-collage-2.png" alt="Paper Collage 关系重构" width="32.5%">
+  <img src="docs/gallery/paper-collage-3.png" alt="Paper Collage 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 主判断与辅助贴纸　　02 关系重构 · 三张叙事卡依次推进　　03 最终定格 · 马克笔观点锁定</sub></p>
+
+### Sketch Note
+
+**适合内容：** 教学、科普、教程、新手向方法讲解。
+
+**视觉语言：** 白纸淡方格、楷体手写、墨线框、铅笔旁注和一支红笔。圈、线、箭头只用于解释，不作为无意义装饰。
+
+**表达强项：** 像老师边讲边画，把抽象关系拆成可以跟随的线稿推演。
+
+<p align="center">
+  <img src="docs/gallery/sketch-note-1.png" alt="Sketch Note 开场落点" width="32.5%">
+  <img src="docs/gallery/sketch-note-2.png" alt="Sketch Note 关系重构" width="32.5%">
+  <img src="docs/gallery/sketch-note-3.png" alt="Sketch Note 最终定格" width="32.5%">
+</p>
+<p align="center"><sub>01 开场落点 · 红笔圈出核心判断　　02 关系重构 · 手绘因果链　　03 最终定格 · 波浪线与圈注收笔</sub></p>
+
+全片只使用一个主风格。Skill 会根据内容给出风格选择表，并只推荐一个最合适的方向。
 
 ### SRT B-roll 录屏画框
 
-当某一段更适合展示真实网站、产品或操作时，SRT 模式会生成带具体小标题的正式录屏窗口。
+当某一段更适合展示真实网站、产品或操作时，SRT 模式会生成带具体小标题的正式录屏窗口，而不是留一张空白制作备注。
 
 ![SRT B-roll Frame](docs/gallery/srt-broll-frame.png)
-
-## 七种重点风格
-
-| 风格 ID | 适合内容 | 画面气质 |
-|---|---|---|
-| `apple-tech-gradient` | AI 工具、产品概念、抽象机制 | 黑色空间与聚光焦点 |
-| `finance-studio-cards` | 财经、商业模式、指标关系 | 演播室数据屏与传导路径 |
-| `editorial-magazine` | 深度观点、文化商业洞察 | 高级中文杂志跨页 |
-| `newspaper-evidence` | 新闻、历史、案例、证据链 | 调查档案与证据编排 |
-| `paper-craft-studio` | 课程、教育解释、亲和品牌 | 暖纸工作台与模块化纸片 |
-| `paper-collage` | 清单、种草、经验总结 | 新潮复古贴纸手账 |
-| `sketch-note` | 教学、科普、新手向讲解 | 白纸黑线知识手稿 |
-
-全片只使用一个主风格。Skill 会根据内容给出风格选择表，并只推荐一个最合适的方向。
 
 ## 工作流
 

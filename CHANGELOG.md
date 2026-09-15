@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.1 - 2026-09-15
+
+- Rebuilt the entire public style gallery from the current runtime and style rules instead of reusing historical outputs.
+- Added three browser-verified screenshots per core style to demonstrate opening focus, relationship reconstruction, and final memory lock.
+- Expanded every style description with Chinese notes for content fit, visual language, and information-expression strengths.
+- Regenerated the SRT B-roll recording-frame example from the current SRT presentation rules.
+
 ## 2.2.0 - 2026-09-15
 
 - Unified the manual HTML and SRT autoplay workflows behind one Jacky Motion entry point.
