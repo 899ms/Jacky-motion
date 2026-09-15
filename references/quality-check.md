@@ -6,9 +6,9 @@
 
 1. 每个 beat 只有一个核心信息，归入 Claim/Contrast/Path/System/Evidence
 2. beat 总数符合主轨预算；没有一句话一页、自然段一页
-3. `data-layout` 全部来自登记表；`data-steps` 与真实 `data-step` 元素一致
+3. `data-layout` 全部来自当前画幅登记表：16:9 只用 L，3:4 只用 V；`data-steps` 与真实 `data-step` 元素一致
 4. Contrast/Path/System/Evidence 有 `data-visual-demo` 且是真实视觉演示，不是文字显隐
-5. 屏幕文字短于口播；普通 motion beat 无剪辑提示词泄漏，只有正式 B-roll beat 显示 `B-ROLL` 与具体小标题
+5. 屏幕文字短于口播；无剪辑提示词（B-roll/旁白窗口等）泄漏到画面
 6. 无捏造的数据、来源、引用
 
 ## B. 风格一致性
@@ -19,13 +19,13 @@
 4. 遵守所选 styles/{id}.md 的禁忌清单
 5. 无 AI 指纹：紫粉渐变、彩色左边框、emoji、居中标题+三卡、随机散点
 6. 无归藏 Swiss 语言：IKB 蓝、柠檬黄、点阵网格、Helvetica 海报巨字组合
-7. 默认只验收 6 个重点风格：apple-tech-gradient / finance-studio-cards / editorial-magazine / newspaper-evidence / paper-collage / sketch-note
+7. 默认只验收 7 个重点风格：apple-tech-gradient / finance-studio-cards / editorial-magazine / newspaper-evidence / paper-craft-studio / paper-collage / sketch-note
 8. 每个 beat 至少有 1 个风格签名组件或签名构图；核心 beat 至少 2 个
-9. L 骨架没有被当成最终设计：每页都有 `style_scene` 对应的场面感和可截图定格帧
+9. L/V 骨架没有被当成最终设计：每页都有 `style_scene` 对应的场面感和可截图定格帧
 
 ## C. 版面与排版（截图上核）
 
-1. 字号下限：hero 标题 ≥96px（纯文字页 ≥120px）、正文 ≥25px、标签 ≥18px
+1. 字号下限：16:9 hero ≥96px（纯文字页 ≥120px）、正文 ≥25px、标签 ≥18px；3:4 hero ≥88px、正文 ≥28px、标签 ≥20px
 2. 每屏一个第一眼落点；主视觉占注意力 45%-65%；缩到 50% 仍知道这页讲什么
 3. 主内容不挤在中心 40% 区域；留白有方向，不是四周空一圈中间一团
 4. 核心元素间距 ≥48px；主视觉与外部卡片 ≥64px；主内容距底部 HUD ≥96px
@@ -42,6 +42,9 @@
 15. 不出现红框/调试框/醒目外框来标记版面区域；边界必须由对齐、留白、材质和层级形成
 16. 编号语义清楚：章节装饰号、流程/清单编号、folio 三者不能长得像同一种东西。章节装饰号可以大而浅、离正文远；流程编号必须贴近条目；folio 只能低权重导航。
 17. 装饰号不得压线、压字、压卡片。发现压线时，先缩小/上移/换角落/缩短规则线，保留原语义；禁止把章节装饰号直接改成流程编号样式来规避问题。
+18. 3:4 常规页最终态使用上中下至少 3 个纵向锚点，有效构图跨度 ≥62%，底部无意义空白 ≤26%；例外页必须登记 `data-portrait-airy="true"`。
+19. 3:4 没有沿用横版左右栏或横向长流程；对比已转为上下、路径已转为纵向、矩阵已转为 2 列。
+20. 3:4 标题每行 3-7 字为主，最后一行无 1-2 字尴尬尾行；不是靠缩字塞入窄栏。
 
 ## D. 线条与截图
 
@@ -63,23 +66,10 @@
 9. 每步新增 1-3 个信息对象；列表逐项揭示，无同时 stagger 涌入
 10. 每步结束停在稳定画面：无残留 blur/半透明/transform 错位
 11. 动画总时长 < 口播时长（中文 4 字/秒）
-12. 点击准备层后倒数 3 秒并自动播放；Space 暂停/继续；←/→ 跳 5 秒；R 从头重播；F 全屏可用
+12. 点击/Space/→ 先推进屏内 step 再进下一 beat；← 回退直落终态；R 重播；F 全屏可用
 13. 断网打开（GSAP 加载失败）时第一屏静态内容仍可读
 
-## F. SRT 同步与 B-roll
-
-1. 每个 beat 都有合法的 `data-start-ms` / `data-end-ms`，按 DOM 顺序严格递增且不重叠
-2. 相邻 beat 空档 ≤500ms；首 beat 覆盖首条 cue，末 beat 覆盖末条 cue
-3. 多步 beat 的 `data-step-times` 数量等于 `data-steps - 1`，严格递增并落在 beat 时间内
-4. step 切换钉在语义触发 cue，不是机械平均分配
-5. B-roll beat 使用 `data-kind="broll"`、`LX-BROLL`、非空 `data-broll-title` 和完整 `.broll-frame`
-6. B-roll 小标题 4-18 个字符，具体说明录制对象或动作；无“待补/这里放/适合插入”等制作废话
-7. 播放途中切到后台 5 秒再回来，画面追到当前绝对时间，不从旧 step 继续
-8. 暂停 5 秒再继续，时间轴不漂移；连续三次 `R` 重播的切换点一致
-9. 到末条字幕结束后停在最后定格帧，不循环、不跳回开头
-10. HTML 不含音频、TTS 或语音合成代码；SRT 文本不作为逐句字幕显示
-
-## G. 校验脚本
+## F. 校验脚本
 
 ```bash
 node <SKILL_ROOT>/scripts/validate-motion-html.mjs path/to/output.html
@@ -91,8 +81,8 @@ FAIL 修复后重跑；WARN 人工确认。Playwright 可用时必须再跑：
 node <SKILL_ROOT>/scripts/check-layout-browser.mjs path/to/output.html path/to/screenshots
 ```
 
-## H. 截图验收（必做）
+## G. 截图验收（必做）
 
-至少截：准备层 / 首屏 / 信息最密集的 beat / 所有多步 beat 的最后一步 / 每种 B-roll 画框 / 收束页。
+至少截：首屏 / 信息最密集的 beat / 所有多步 beat 的最后一步 / 收束页。3:4 必须在 `1080×1440` 视口截图，不用横屏视口包住缩小后的竖屏舞台。
 
 不通过的典型现象：中间堆一团四周空、信息组无共同轴线像拼贴、标题行距压扁、卡片互压、线穿卡、截图不可读、HUD 遮内容。发现任何真实重叠——主视觉、标题、卡片、光场安全区之间——验收直接失败，不允许解释为"空间层次"，先改版式再重截。

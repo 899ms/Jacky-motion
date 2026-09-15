@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.0 - 2026-09-15
+
+- Unified the manual HTML and SRT autoplay workflows behind one Jacky Motion entry point.
+- Synced the current 16:9 and 3:4 visual core, including portrait layout skeletons and the `paper-craft-studio` style.
+- Kept one shared set of seven style, layout, motion, and visual quality rules; SRT now adds only timing, autoplay, and B-roll behavior.
+- Added dedicated SRT runtime and validation filenames to prevent standard and timed outputs from using the wrong checker.
+- Added a curated gallery of real browser-verified outputs for GitHub and marketplace presentation.
+- Updated repository documentation, mode routing, installation examples, and public-facing metadata.
+
 ## 2.1.0 - 2026-07-20
 
 - Upgraded the skill to the independent Jacky Motion 2.0 SRT automatic-recording workflow.

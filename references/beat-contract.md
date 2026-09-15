@@ -10,16 +10,12 @@ core_message:
 information_primitive: Claim / Contrast / Path / System / Evidence
 spoken_duration_estimate:
 screen_text:
-track_role: motion / broll
-srt_timing:
-  cue_range:
-  start_ms:
-  end_ms:
-b_roll:
-  title:
-  frame_subject:
+track_role: main_track / narrator_only / b_roll_window
+b_roll_window:
 
 composition:
+  aspect_ratio:
+  stage_size:
   layout_skeleton:
   style_scene:
   anchor_axis:
@@ -31,6 +27,10 @@ composition:
     body_line_height:
     group_gap:
     alignment_rule:
+  portrait_fill:
+    vertical_anchors:
+    active_span_target:
+    bottom_lock:
 
 attention_path:
   first_glance:
@@ -61,7 +61,6 @@ visual_demo:
 
 step_contract:
   - step:
-    at_ms:
     spoken_trigger:
     primary_focus:
     visual_demo:
@@ -88,21 +87,21 @@ validation_risks:
 
 - `core_message`: 只允许一句话，不写并列观点。
 - `screen_text`: 必须短于口播，只做视觉索引。
-- `track_role`: 只允许 `motion` 或 `broll`。解释句和过渡句由当前 motion beat 承接；需要真实界面、操作、素材或案例时才进入 broll。
-- `srt_timing`: 必须来自真实 SRT cue。`start_ms < end_ms`；相邻 beat 不重叠，空档不超过 500ms。
-- `b_roll`: `track_role=broll` 时必填，标题写 4-14 个汉字的具体展示对象；使用 `LX-BROLL`，不填写普通 camera_acts 与 step_contract。
-- `layout_skeleton`: 必须是 L01-L10 或有登记说明的 `LX-*`。
+- `track_role`: 默认 `main_track`；解释句、过渡句、例子细节优先进入 `narrator_only` 或 `b_roll_window`。
+- `aspect_ratio`: 只允许 `16:9` 或 `3:4`；`stage_size` 对应 `1920×1080` 或 `1080×1440`。
+- `layout_skeleton`: 16:9 必须是 L01-L10/LX-*；3:4 必须是 V01-V10/VX-*，不得混用。
 - `style_scene`: 写清这页靠什么识别所选风格，例如“浅蓝产品页 + 主截图 + 蓝色路径线”，不能写“好看”。
 - `primary_zone`: 主视觉区域，说明左/右/上/下/全轴位置和大致占比。
 - `negative_space_role`: 留白用于推进方向、对比缓冲、记忆定格或截图安全。
 - `rhythm`: 写清标题行高、正文行高、组间距和对齐规则。
+- `portrait_fill`: 仅 3:4 必填。写上/中/下纵向锚点、有效构图跨度目标和底部记忆锁；常规页跨度目标不得低于 62%。
 - `first_glance`: 观众 1 秒内应该看的唯一对象。
 - `final_lock`: 动画结束后的记忆点，也是截图验收帧。
 - `camera_acts`: 四段式短视频镜头。`glance` 是视觉重心入场；`reconstruct` 是画面关系变化；`push` 是关键词/节点/证据被推近，非焦点退后；`lock` 是记忆定格。Claim 页可省略 `reconstruct`，但必须写明原因。
 - `changed_relation`: 必须说明信息关系如何变化；只写“淡入/出现/上移”不合格。
 - `motion_budget`: 每 beat 最多 1 个结构运动 + 2 组辅助出现 + 1 次最终强调。
 - `visual_demo`: Contrast / Path / System / Evidence 必填；必须是具体演示，如 `path-line-draw` / `split-compare` / `evidence-spotlight`。
-- `step_contract`: 多步 motion beat 必填；每步必须有 `at_ms`、`primary_focus`、`visual_demo`、`persistent_context`、`final_state`。step 2..N 的 `at_ms` 严格递增并落在 beat 时间内。
+- `step_contract`: 多步 beat 必填；每步必须有 `primary_focus`、`visual_demo`、`persistent_context`、`final_state`。
 - `continuity_object`: 长稿优先保留跨 beat 对象，让画面像连续演示而不是翻 PPT。
 - `validation_risks`: 必须写真实风险，不能全写“无”。
 
@@ -116,6 +115,7 @@ validation_risks:
 - CPSE beat 的 `visual_demo` 缺失或只写“淡入/出现”。
 - 多步 beat 缺 `step_contract`，或 step 的 `final_state` 缺失。
 - `layout_skeleton` 写“自由发挥”。
+- 3:4 使用 L 骨架，或只修改舞台宽高而没有横转竖构图。
 - `screen_text` 是口播原文。
 
 ## Step 质量

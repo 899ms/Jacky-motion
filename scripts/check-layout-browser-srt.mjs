@@ -7,7 +7,7 @@ const input = process.argv[2];
 const outDir = process.argv[3] || "";
 
 if (!input) {
-  console.error("Usage: node check-layout-browser.mjs path/to/output.html [screenshot-dir]");
+  console.error("Usage: node check-layout-browser-srt.mjs path/to/output.html [screenshot-dir]");
   process.exit(2);
 }
 
@@ -50,28 +50,15 @@ function expandBox(box, gap) {
   };
 }
 
-let browser;
-try {
-  browser = await chromium.launch({ headless: true });
-} catch {
-  console.warn("SKIP Playwright browser executable is unavailable. Use the agent browser or manual screenshots; do not install a browser only for this check.");
-  process.exit(0);
-}
-const page = await browser.newPage({ viewport: { width: 1200, height: 1200 }, deviceScaleFactor: 1 });
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
 await page.goto(fileUrl);
 await page.waitForTimeout(600);
-
-const stageSize = await page.evaluate(() => {
-  const stage = document.querySelector("#stage");
-  if (!stage) return null;
-  const style = getComputedStyle(stage);
-  return { width: Math.round(parseFloat(style.width)), height: Math.round(parseFloat(style.height)) };
+await page.evaluate(() => {
+  const gate = document.getElementById("autoplayGate");
+  if (gate) gate.hidden = true;
+  document.body.classList.remove("autoplay-running");
 });
-if (stageSize && stageSize.width >= 320 && stageSize.height >= 320) {
-  await page.setViewportSize(stageSize);
-  await page.reload();
-  await page.waitForTimeout(600);
-}
 
 const beatCount = await page.locator(".beat").count();
 if (beatCount === 0) failures.push("No .beat sections found.");
@@ -108,7 +95,7 @@ for (let index = 0; index < beatCount; index += 1) {
     const beat = document.querySelector(".beat.active");
     const beatName = beat?.id || beat?.dataset.layout || `beat-${[...document.querySelectorAll(".beat")].indexOf(beat) + 1}`;
     const stage = document.querySelector("#stage");
-    const nav = document.querySelector("#nav,.nav,[data-nav],.hud");
+    const nav = document.querySelector("#nav,.nav,[data-nav]");
     const elements = [...document.querySelectorAll(".beat.active [data-safe-box]")].map((el, i) => {
       const rect = el.getBoundingClientRect();
       return {
@@ -130,15 +117,7 @@ for (let index = 0; index < beatCount; index += 1) {
       const rect = stage.getBoundingClientRect();
       return { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height };
     })() : null;
-    return {
-      beatName,
-      layout: beat?.dataset.layout || "",
-      primitive: beat?.dataset.primitive || "",
-      portraitAiry: beat?.dataset.portraitAiry === "true",
-      elements,
-      navBox,
-      stageBox
-    };
+    return { beatName, elements, navBox, stageBox };
   });
 
   if (result.elements.length === 0) {
@@ -169,33 +148,6 @@ for (let index = 0; index < beatCount; index += 1) {
       if (result.stageBox && box.bottom > result.stageBox.bottom - 96) {
         failures.push(`${result.beatName}: ${box.label} enters 96px bottom nav safe zone.`);
       }
-    }
-  }
-
-  const isPortrait = Boolean(result.stageBox && result.stageBox.height > result.stageBox.width);
-  if (isPortrait && result.stageBox && result.elements.length) {
-    const top = Math.min(...result.elements.map((box) => box.top));
-    const bottom = Math.max(...result.elements.map((box) => box.bottom));
-    const left = Math.min(...result.elements.map((box) => box.left));
-    const right = Math.max(...result.elements.map((box) => box.right));
-    const verticalSpan = (bottom - top) / result.stageBox.height;
-    const horizontalSpan = (right - left) / result.stageBox.width;
-    const bottomGap = (result.stageBox.bottom - bottom) / result.stageBox.height;
-    const minSpan = result.portraitAiry ? 0.46 : 0.62;
-
-    if (verticalSpan < minSpan) {
-      failures.push(`${result.beatName}: portrait safe-box span is ${Math.round(verticalSpan * 100)}%; require at least ${Math.round(minSpan * 100)}% to avoid center clustering.`);
-    }
-    if (!result.portraitAiry && bottomGap > 0.26) {
-      failures.push(`${result.beatName}: portrait bottom whitespace is ${Math.round(bottomGap * 100)}%; add a meaningful lower anchor/lock or recompose.`);
-    }
-    if (horizontalSpan < 0.58 && !/^(V02|V07)$/.test(result.layout)) {
-      warnings.push(`${result.beatName}: portrait content spans only ${Math.round(horizontalSpan * 100)}% of stage width. Check for a narrow centered stack.`);
-    }
-
-    const shot = result.elements.find((box) => /(^|[-_])(shot|evidence-main)($|[-_])/i.test(box.label));
-    if (shot && shot.height / result.stageBox.height < 0.42) {
-      failures.push(`${result.beatName}: portrait screenshot/evidence uses only ${Math.round((shot.height / result.stageBox.height) * 100)}% of stage height; target 45%-65%.`);
     }
   }
 

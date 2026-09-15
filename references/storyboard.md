@@ -1,10 +1,10 @@
 # 分镜与节拍契约（Phase 2-3 单一入口）
 
-读完本文件可完成分镜。锁风格和逐 beat 契约时必须继续读 [beat-contract.md](beat-contract.md) 与 [hybrid-quality-gate.md](hybrid-quality-gate.md)。版式细节查 [layout-skeletons.md](layout-skeletons.md)，运动细节生成时查 [motion-language.md](motion-language.md)。
+读完本文件可完成分镜。锁风格和逐 beat 契约时必须继续读 [beat-contract.md](beat-contract.md) 与 [hybrid-quality-gate.md](hybrid-quality-gate.md)。16:9 版式查 [layout-skeletons.md](layout-skeletons.md)；3:4 必须加读 [portrait-adaptation.md](portrait-adaptation.md) 与 [layout-skeletons-portrait.md](layout-skeletons-portrait.md)。运动细节生成时查 [motion-language.md](motion-language.md)。
 
 ## 1. 主轨压缩（先做，再拆 beat）
 
-HTML 是口播视频的主轨结构，不是逐句字幕。只保留观众必须**看见**的核心节点：开场判断、核心问题、关键对比、方法路径、必要证据、结论收束。解释句和过渡句由当前主轨画面承接；真实产品、网站、操作、素材或案例展示标为 `b_roll_window`，在最终 HTML 中生成正式 B-roll 画框 beat。
+HTML 是口播视频的主轨结构，不是逐句字幕。只保留观众必须**看见**的核心节点：开场判断、核心问题、关键对比、方法路径、必要证据、结论收束。解释句、过渡句、例子细节、实操演示，默认标为 `narrator_only` 或 `b_roll_window`——留给口播和 B-roll，不上屏。
 
 节拍预算：
 
@@ -25,17 +25,18 @@ Claim 判断 → Contrast 对比 → Path 路径 → System 机制 → Evidence 
 
 ## 3. 分镜表（Phase 2 产出，等用户确认）
 
+先在表格前声明：`画幅：16:9 · 1920×1080` 或 `画幅：3:4 · 1080×1440`。用户未指定时默认 16:9；一旦确认，同一输出不得混用。
+
 ```
-节拍 | SRT cue与时间范围 | 轨道(motion/broll) | 核心信息(1句) | 原语 | 版式(L编号) | 风格场面(style_scene) | 四段式镜头 | 屏幕文字/B-roll小标题 | steps与时间点 | 风险
+节拍 | 覆盖口播范围 | 核心信息(1句) | 原语 | 版式(L/V编号) | 风格场面(style_scene) | 四段式镜头 | 屏幕文字 | steps | B-roll/旁白窗口 | 风险
 ```
 
 硬约束：
 - 核心信息只能一句话，不写并列观点
 - 屏幕文字必须短于口播，是视觉索引不是字幕
-- 版式必须来自 layout-skeletons.md 登记表（L01-L10 或登记的自定义）
+- 16:9 必须来自 `L01-L10/LX-*`；3:4 必须来自 `V01-V10/VX-*`，禁止在竖版沿用 L 骨架后只改尺寸
 - steps 默认 2-3，最多 4；Contrast/Path/System/Evidence 至少 2
-- 每段必须登记 SRT cue、`startMs`、`endMs`；多步 beat 还要登记 step 2..N 的绝对毫秒点
-- `broll` 必须使用 `LX-BROLL` 与具体小标题；最终 HTML 只允许指定 B-roll beat 出现 `B-ROLL` 标签，其他 beat 禁止泄漏制作提示
+- `B-roll/旁白窗口` 只出现在分镜表里，**最终 HTML 可见文字禁止出现** `B-roll`、`旁白窗口`、`可配口播`、`适合插入` 等剪辑提示
 - `风格场面` 必须写出该页靠什么识别所选风格，不能只写风格名
 - `四段式镜头` 必须写 `glance / reconstruct / push / lock`；Claim 页可省略 reconstruct，但必须说明“静止帧已成立”
 - 风险提前标：页数过多、长标题、节点过多、截图可读性、中心堆积
@@ -46,14 +47,13 @@ Claim 判断 → Contrast 对比 → Path 路径 → System 机制 → Evidence 
 
 ```md
 beat: b3
-track: motion
-timing: cue 8-14 · 00:21.400-00:38.200 · startMs 21400 · endMs 38200
 core: 一句话核心信息
 primitive: Path
 spoken_estimate: 22s（中文 4 字/秒）
 screen_text: 屏幕上出现的全部文字（短语级）
+aspect: 16:9 · 1920×1080
 layout: L04 · 标题上轴，流程横贯下方主轴，留白推进方向向右
-style_scene: apple-tech-gradient · 黑色发布会空间 + 光场路径线 + 轻玻璃节点
+style_scene: apple-light-blue-glass · 浅蓝产品页空间 + 蓝色路径线 + 轻玻璃节点
 attention_path: 第一眼[标题] → 推进[节点逐个] → 定格[完整路径+结论词]
 camera_acts:
   glance: 标题先落位，观众知道这页看“三步”
@@ -63,16 +63,17 @@ camera_acts:
 visual_demo: path-line-draw（CPSE 必填；只能写具体演示，不许写"淡入/出现"）
 recipe: path-build（省略阶段：无 / Claim 页写明省略 relation 的原因）
 steps:
-  - s1: 21400ms · 口播触发[讲完问题时] · 焦点[标题+首节点] · 保留[—] · 终态[首节点稳定]
-  - s2: 27600ms · 触发[说到"第二步"] · 焦点[节点2+连线] · 保留[节点1 稳定] · 终态[两节点连通]
-  - s3: 33100ms · 触发[说到"最后"] · 焦点[节点3+结论词] · 保留[前两节点] · 终态[全路径+红字锁定]
+  - s1: 口播触发[讲完问题时] · 焦点[标题+首节点] · 保留[—] · 终态[首节点稳定]
+  - s2: 触发[说到"第二步"] · 焦点[节点2+连线] · 保留[节点1 稳定] · 终态[两节点连通]
+  - s3: 触发[说到"最后"] · 焦点[节点3+结论词] · 保留[前两节点] · 终态[全路径+红字锁定]
 continuity: 路径线从 b3 延续到 b5（b4 灰化为背景，b5 重新点亮末段）
 risks: 节点文字过长→限 6 字；连线穿卡→用 flow 轨道
 ```
 
+3:4 时把示例中的 `aspect` 改为 `3:4 · 1080×1440`，并使用 V 骨架。例如 Path 使用 V04：标题占上部，流程沿 y 轴推进，底部结论形成 lock；不能把 L04 节点压窄后继续横排。
+
 字段规则：
 - `attention_path.final_lock` 就是截图验收帧——先想定格帧，再反推运动
-- timing 必须来自真实 SRT cue；step 时间钉在语义触发词所在 cue，不做等分估算
 - `camera_acts` 是短视频镜头编排，不是动画清单；必须体现视觉重心入场、画面重构、关键信息推进、记忆定格
 - 每步只演一件事，新增 1-3 个信息对象；已出现内容保持稳定（允许灰化/降亮/轻让位，禁止重播、重排、漂移）
 - 每步终态必须可稳定截图；找不到 visual_demo 的 step 通常不该上屏，合并进口播

@@ -1,10 +1,10 @@
 # 混合版质量门：稳定运行时 + 强审美模板感
 
-目标：保留 2.1 的稳定装配体系，同时恢复 2.0 的发布会级画面判断。L01-L10 是结构骨架，不是成片设计；风格 CSS 是材质和 token，不是审美完成。每个 beat 必须在骨架之上做出该风格的“可识别场面”。
+目标：保留 2.1 的稳定装配体系，同时恢复 2.0 的发布会级画面判断。L01-L10 / V01-V10 是画幅专用结构骨架，不是成片设计；风格 CSS 是材质和 token，不是审美完成。每个 beat 必须在骨架之上做出该风格的“可识别场面”。
 
 ## 1. 混合版边界
 
-- 保留：`base-template.html`、声明式 step、TL 注册表、L01-L10、validator、browser check。
+- 保留：16:9/3:4 固定基座、声明式 step、TL 注册表、L/V 登记骨架、validator、browser check。
 - 恢复：风格 DNA、composition contract、主视觉占比、强定格帧、坏模式禁令、step 视觉演示。
 - 禁止：只把 L 骨架换皮、只改颜色字体、只写通用 fade/stagger、只生成能跑但不好看的 smoke test。
 
@@ -12,7 +12,7 @@
 
 ```md
 composition:
-  layout_skeleton: L01-L10 / LX-...
+  layout_skeleton: L01-L10 / LX-... 或 V01-V10 / VX-...
   style_scene: 这页一眼属于哪个风格，靠什么识别
   primary_box: 主视觉相对位置和边界
   secondary_box: 辅助信息相对位置和边界
@@ -56,6 +56,8 @@ Path = 3-5 节点 + 独立连线轨道；System = 1 锚点 + 2-3 层；Evidence 
 条目识别，folio 只做导航。三者不得共用同一种大小、颜色、位置逻辑；
 装饰号压线时只能调整装饰号或规则线，不能改成流程编号样式。
 
+3:4 时本节继续成立，但必须加读 [portrait-adaptation.md](portrait-adaptation.md)：主视觉从横向占地改为纵向占地，常规页使用上/中/下至少 3 个锚点，有效构图跨度 ≥62%。不能用横版缩放、裁切或更小字号来伪装适配。
+
 写 beat HTML/CSS 前，先在心里完成这张版式地图：
 
 ```md
@@ -80,6 +82,7 @@ scene_map:
 | finance-studio-cards | 顶部栏/主 KPI/传导链至少两项；主亮次暗，不能全卡同亮 |
 | editorial-magazine | 衬线断句、编号/拉引/规则线/裁切图至少两项；留白像编辑判断 |
 | newspaper-evidence | 主证据先于结论；来源/日期/编号/引用至少两项；纸张材质至少两种 |
+| paper-craft-studio | 暖米纸底、奶油白主纸、剪裁纸片、轻柔错层阴影、干净色块至少两项；手作但保持清晰网格 |
 | paper-collage | 厚描边贴纸、硬阴影、胶带/票据/马克笔至少两项；热闹但有网格 |
 | sketch-note | 手写字体、墨线框、红笔圈注/SVG 描线；像纸上画出来 |
 

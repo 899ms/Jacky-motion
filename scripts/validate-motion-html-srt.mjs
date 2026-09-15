@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Jacky Motion 2.1 静态校验：登记表 / beat 属性 / step 契约 / 运行时完整性 / 排版红线
+// Jacky Motion 2.0 SRT 静态校验：beat / SRT 时间轴 / B-roll / 运行时 / 排版红线
 import fs from "node:fs";
 
 const file = process.argv[2];
 if (!file) {
-  console.error("Usage: node validate-motion-html.mjs path/to/output.html");
+  console.error("Usage: node validate-motion-html-srt.mjs path/to/output.html");
   process.exit(2);
 }
 
@@ -13,12 +13,6 @@ const failures = [];
 const warnings = [];
 const fail = (m) => failures.push(m);
 const warn = (m) => warnings.push(m);
-const declaredAspect = html.match(/<html\b[^>]*\bdata-aspect=["']([^"']+)["']/i)?.[1] || "16:9";
-const isPortrait = declaredAspect === "3:4";
-
-if (!["16:9", "3:4"].includes(declaredAspect)) {
-  fail(`Unsupported data-aspect="${declaredAspect}". Use 16:9 or 3:4.`);
-}
 
 /* ── 0. 装配占位检查 ── */
 const unresolved = [...html.matchAll(/\{\{([A-Z_]+)\}\}/g)].map((m) => m[1]);
@@ -27,11 +21,13 @@ if (unresolved.length) {
 }
 
 /* ── 1. beat 登记与属性 ── */
-const LAYOUT_IDS = /^(L0[1-9]|L10|LX-[\w-]+|V0[1-9]|V10|VX-[\w-]+)$/;
+const LAYOUT_IDS = /^(L0[1-9]|L10|LX-[\w-]+)$/;
 // 剥离注释后再匹配，避免把基座模板里的示例注释当成真实 beat
 const htmlNoComments = html.replace(/<!--[\s\S]*?-->/g, "");
 const beatMatches = [...htmlNoComments.matchAll(/<section[^>]*class=["'][^"']*\bbeat\b[^"']*["'][^>]*>/gi)];
 if (beatMatches.length === 0) fail("No .beat sections found.");
+const timing = [];
+let motionBeatCount = 0;
 
 for (let i = 0; i < beatMatches.length; i += 1) {
   const tag = beatMatches[i][0];
@@ -39,22 +35,30 @@ for (let i = 0; i < beatMatches.length; i += 1) {
   const body = htmlNoComments.slice(beatMatches[i].index, beatMatches[i + 1]?.index ?? htmlNoComments.length);
   const layout = tag.match(/\bdata-layout=["']([^"']+)["']/i)?.[1];
   const primitive = tag.match(/\bdata-primitive=["']([^"']+)["']/i)?.[1] || "";
+  const kind = tag.match(/\bdata-kind=["']([^"']+)["']/i)?.[1] || "";
   const steps = Number(tag.match(/\bdata-steps=["'](\d+)["']/i)?.[1] || 1);
+  const startMs = Number(tag.match(/\bdata-start-ms=["'](\d+)["']/i)?.[1]);
+  const endMs = Number(tag.match(/\bdata-end-ms=["'](\d+)["']/i)?.[1]);
+  const stepTimesRaw = tag.match(/\bdata-step-times=["']([^"']*)["']/i)?.[1] || "";
+  const stepTimes = stepTimesRaw
+    ? stepTimesRaw.split(",").map((v) => Number(v.trim())).filter(Number.isFinite)
+    : [];
+  const isBroll = kind === "broll";
+
+  if (!/^(motion|broll)$/.test(kind)) fail(`${id}: data-kind must be "motion" or "broll".`);
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
+    fail(`${id}: invalid or missing data-start-ms/data-end-ms.`);
+  } else {
+    timing.push({ id, startMs, endMs });
+  }
+  if (!isBroll) motionBeatCount += 1;
 
   if (!layout) fail(`${id}: missing data-layout.`);
-  else if (!LAYOUT_IDS.test(layout)) fail(`${id}: data-layout "${layout}" is not registered (L01-L10/LX-* or V01-V10/VX-*).`);
-  else if (isPortrait && !/^V(?:0[1-9]|10|X-)/.test(layout)) {
-    fail(`${id}: 3:4 output must use a portrait V layout, not "${layout}".`);
-  } else if (!isPortrait && /^V(?:0[1-9]|10|X-)/.test(layout)) {
-    fail(`${id}: V layouts require <html data-aspect="3:4"> and the portrait base template.`);
-  }
+  else if (!LAYOUT_IDS.test(layout)) fail(`${id}: data-layout "${layout}" is not registered (L01-L10 or LX-<name>).`);
   if (!/\bdata-core=["'][^"']+["']/i.test(tag)) fail(`${id}: missing data-core.`);
   if (!primitive) fail(`${id}: missing data-primitive.`);
-  if (/\bdata-portrait-airy=["']true["']/i.test(tag) && !/^Claim$/i.test(primitive)) {
-    fail(`${id}: data-portrait-airy="true" is only allowed for Claim beats.`);
-  }
 
-  const isCPSE = /^(Contrast|Path|System|Evidence)$/i.test(primitive);
+  const isCPSE = !isBroll && /^(Contrast|Path|System|Evidence)$/i.test(primitive);
   if (isCPSE && !/\bdata-visual-demo=["'][^"']+["']/i.test(tag)) {
     warn(`${id}: ${primitive} beat should declare data-visual-demo (real visual demonstration, not text reveal).`);
   }
@@ -73,10 +77,46 @@ for (let i = 0; i < beatMatches.length; i += 1) {
     }
   }
   if (steps > 4) fail(`${id}: data-steps=${steps} exceeds the max of 4. Merge steps or split the beat.`);
+
+  if (steps > 1) {
+    if (stepTimes.length !== steps - 1) {
+      fail(`${id}: data-step-times must contain ${steps - 1} value(s) for steps 2..${steps}.`);
+    }
+    for (let j = 0; j < stepTimes.length; j += 1) {
+      if (stepTimes[j] <= startMs || stepTimes[j] >= endMs) {
+        fail(`${id}: step time ${stepTimes[j]} must be inside (${startMs}, ${endMs}).`);
+      }
+      if (j > 0 && stepTimes[j] <= stepTimes[j - 1]) {
+        fail(`${id}: data-step-times must be strictly increasing.`);
+      }
+    }
+  } else if (stepTimes.length) {
+    fail(`${id}: data-step-times found on a single-step beat.`);
+  }
+
+  if (isBroll) {
+    if (layout !== "LX-BROLL") fail(`${id}: B-roll beat must use data-layout="LX-BROLL".`);
+    const title = tag.match(/\bdata-broll-title=["']([^"']+)["']/i)?.[1]?.trim() || "";
+    if (!title) fail(`${id}: B-roll beat missing data-broll-title.`);
+    const titleLength = title.replace(/\s+/g, "").length;
+    if (titleLength < 4 || titleLength > 18) fail(`${id}: B-roll title must be 4-18 characters.`);
+    if (/(待补|这里放|适合插入|素材占位|随便)/i.test(title)) fail(`${id}: B-roll title is a production note, not a concrete recording subject.`);
+    if (title && !body.includes(title)) fail(`${id}: data-broll-title must also appear as the visible frame heading.`);
+    if (!/\bbroll-frame\b/i.test(body)) fail(`${id}: B-roll beat missing .broll-frame.`);
+    if (steps !== 1) fail(`${id}: B-roll beat must use data-steps="1".`);
+  }
+}
+
+for (let i = 1; i < timing.length; i += 1) {
+  const prev = timing[i - 1];
+  const cur = timing[i];
+  if (cur.startMs < prev.startMs) fail(`${cur.id}: beat timing is not in chronological DOM order.`);
+  if (cur.startMs < prev.endMs) fail(`${prev.id}/${cur.id}: beat ranges overlap by ${prev.endMs - cur.startMs}ms.`);
+  if (cur.startMs - prev.endMs > 500) fail(`${prev.id}/${cur.id}: uncovered SRT gap is ${cur.startMs - prev.endMs}ms (>500ms).`);
 }
 
 /* ── 2. 运行时完整性（基座不可改） ── */
-for (const marker of ["scaleStage", "applyState", "enterBeat", "toggleFullscreen", "replayBeat", "const TL"]) {
+for (const marker of ["scaleStage", "applyState", "enterBeat", "toggleFullscreen", "replayBeat", "renderAt", "startCountdown", "currentAutoplayTime", "const TL"]) {
   if (!html.includes(marker)) fail(`Runtime integrity: "${marker}" missing. Do not modify/strip the base-template runtime.`);
 }
 if (!/#stage\b/i.test(html)) fail("Missing #stage.");
@@ -84,14 +124,6 @@ if (!/documentElement\.classList\.add\(['"]js['"]\)/.test(html)) {
   warn("JS-ready class hook not found; no-JS degradation may be broken.");
 }
 if (!/--stage-w|1920px|1440px/i.test(html)) warn("No fixed stage size token detected.");
-if (isPortrait) {
-  const portraitLock = html.match(/PORTRAIT FRAME LOCK[\s\S]*?END PORTRAIT FRAME LOCK/)?.[0] || "";
-  if (!portraitLock) fail("3:4 output is missing the PORTRAIT FRAME LOCK block. Start from assets/base-template-portrait.html.");
-  if (!/--stage-w\s*:\s*1080px\s*!important/i.test(portraitLock)) fail("3:4 frame must lock --stage-w to 1080px.");
-  if (!/--stage-h\s*:\s*1440px\s*!important/i.test(portraitLock)) fail("3:4 frame must lock --stage-h to 1440px.");
-} else if (/PORTRAIT FRAME LOCK/.test(html)) {
-  fail("PORTRAIT FRAME LOCK found without <html data-aspect=\"3:4\">. Keep one aspect ratio per output.");
-}
 const headHtml = html.match(/<head[\s\S]*?<\/head>/i)?.[0] || "";
 const headLinks = headHtml
   .replace(/<style[\s\S]*?<\/style>/gi, "")
@@ -123,8 +155,11 @@ if (/\b(tts|voice|speechSynthesis|utterance|\.mp3|\.wav)\b/i.test(html)) {
   fail("Audio/TTS related code found. Pipeline ends at visual acceptance.");
 }
 const visible = html.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<!--[\s\S]*?-->/g, "");
-if (/(B-roll|旁白窗口|可配口播|适合插入)/i.test(visible.replace(/<style[\s\S]*?<\/style>/gi, ""))) {
-  fail("Editing hints (B-roll/旁白窗口/…) leaked into visible content.");
+const visibleWithoutBroll = visible
+  .replace(/<style[\s\S]*?<\/style>/gi, "")
+  .replace(/<section[^>]*data-kind=["']broll["'][^>]*>[\s\S]*?<\/section>/gi, "");
+if (/(B-roll|旁白窗口|可配口播|适合插入)/i.test(visibleWithoutBroll)) {
+  fail("Editing hints leaked outside a designated B-roll beat.");
 }
 
 /* ── 5. 排版红线 ── */
@@ -150,7 +185,6 @@ for (const [, tagName, inner] of html.matchAll(/<(h1|h2|div|span)[^>]*(?:hero-ti
   for (const line of lines) {
     const cjk = line.match(/[一-鿿]/g) || [];
     if (cjk.length === 1) fail(`Title has a one-character Chinese line: "${line}".`);
-    if (isPortrait && cjk.length === 2) warn(`Portrait title has a two-character line: "${line}". Rebalance the phrase break before shrinking type.`);
   }
 }
 
@@ -174,8 +208,8 @@ if (shotCoverRule) {
   warn("object-fit:cover found on information screenshots (.shot). Use contain/max dimensions instead.");
 }
 const tlCount = (html.match(/TL\.(b\w+)\s*=/g) || []).length;
-if (beatMatches.length >= 3 && tlCount < Math.ceil(beatMatches.length / 3)) {
-  warn(`Only ${tlCount} custom TL timeline(s) for ${beatMatches.length} beats. Core beats need signature motion, not just the default enter.`);
+if (motionBeatCount >= 3 && tlCount < Math.ceil(motionBeatCount / 3)) {
+  warn(`Only ${tlCount} custom TL timeline(s) for ${motionBeatCount} motion beats. Core beats need signature motion, not just the default enter.`);
 }
 
 /* ── 输出 ── */

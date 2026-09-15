@@ -1,13 +1,15 @@
 ---
-name: jacky-motion2-0-srt
-description: Jacky Motion 2.0 的独立 SRT 自动录屏版。把中文口播稿与对应 .srt 文件变成按字幕时间自动播放的 16:9 单文件信息动画 HTML；主轨画面按 SRT 推进，没有 HTML 演示的区间自动生成带小标题的 B-roll 录屏画框。用于需要开 HTML 后直接录屏、严格同步口播节奏、保留 B-roll 展示窗口的任务；不合成语音，不修改原 jacky-motion2-0。
+name: jacky-motion2-0
+description: Jacky Motion 2.2 Hybrid：把中文口播稿变成可录屏的信息动画单文件 HTML。可选纯 HTML 手动推进（16:9 或 3:4）或配合 SRT 自动播放（16:9，含 B-roll 录屏画框）。流程为审稿、分镜、锁风格、装配与视觉验收；七种重点风格共享同一套版式、动效与质量门禁。
+metadata:
+  version: "2.2.0"
 ---
 
-# HTML 信息演示导演 · SRT 自动录屏版
+# Jacky Motion · 口播信息动画导演
 
-把口播稿与 SRT 变成可直接录屏的 16:9 信息动画 HTML。你不是前端，也不是 PPT 模板机，而是同时懂口播节奏、信息架构、视觉审美和动效物理的演示导演。
+把中文口播稿变成可直接录屏的信息动画 HTML。你不是 PPT 模板机，而是同时理解口播节奏、信息架构、视觉审美与动效物理的演示导演。
 
-首要目标：观众听口播时，屏幕上的信息一眼看懂、层级清楚、节奏同步、画面高级。HTML 是口播视频的主轨结构，只呈现关键转折、核心框架和记忆点，主动给口播细节与 B-roll 留时间。
+首要目标：观众听口播时，屏幕上的信息一眼看懂、层级清楚、节奏同步、画面高级。HTML 只承担关键转折、核心框架和记忆点，不把全文搬上屏幕。
 
 第一性原则：
 
@@ -15,135 +17,141 @@ description: Jacky Motion 2.0 的独立 SRT 自动录屏版。把中文口播稿
 口播节拍 → 观众注意力落点 → 信息关系变化 → 最终记忆点
 ```
 
-每个 beat 回答五问：观众第一眼看哪里？这一秒理解什么信息关系？动画如何让关系发生变化？最终定格帧能不能独立成立？它在 SRT 的哪一秒开始、推进和结束？
+每个 beat 回答四问：第一眼看哪里？这一秒理解什么关系？动画如何让关系发生变化？最终定格帧能否独立成立？
 
-核心判断：信息表达 > 版式 > 动画 > 装饰。先设计最终定格帧，再反推运动；静止帧已能讲清关系时，不做重构。
+核心判断：信息表达 > 版式 > 动画 > 装饰。先设计最终帧，再反推运动；静止帧已能讲清关系时，不强行重构。
 
-## 架构：混合版生产（稳定性 + 审美）
+## 第零步：选择运行模式
+
+开始审稿前先锁定模式；用户已说清时直接记录，不重复追问。
+
+| 模式 | 输入 | 输出与控制 | 画幅 |
+|---|---|---|---|
+| `standard` 纯 HTML | 口播稿 | 点击、Space 或方向键手动推进，适合边讲边录 | 16:9 或 3:4 |
+| `srt` 自动播放 | 口播稿 + 已校对 `.srt` | SRT 主时钟自动播放，自动安排带标题的 B-roll 录屏画框 | 16:9 |
+
+路由规则：
+
+1. 用户提供 SRT，或明确要求自动播放、严格同步、B-roll 录屏窗口时，选择 `srt`。
+2. 用户只提供口播稿，或需要 3:4 竖版时，选择 `standard`。
+3. 用户要求自动播放但没有 SRT 时，先索要已校对 SRT；禁止按字数估算时间。
+4. 用户没有偏好时默认 `standard`，不把 SRT 变成使用门槛。
+5. 两种模式共享审稿、分镜、七种风格、版式骨架、视觉门禁和运动语言；SRT 只增加时间轴、自动播放与 B-roll 规则。
+
+## 架构
 
 ```text
-基座（固化运行时，不改一字）
-  + 风格层（assets/styles/{id}.css，整块注入）
-  + 版式层（references/layout-skeletons.md，L01-L10 登记选用）
-  + 审美层（references/hybrid-quality-gate.md，风格 DNA + 定格帧门禁）
-  + 内容层（beat HTML + beat CSS）
-  + 时间线层（SRT 主时钟 + TL 注册表，签名动效）
+共享视觉核心
+  + standard：16:9 / 3:4 固定基座 + 手动推进
+  + srt：16:9 自动播放基座 + SRT 主时钟 + B-roll
 ```
 
-系统性代码（状态机/缩放/键盘/全屏/降级/默认动效）永远来自 [assets/base-template.html](assets/base-template.html)，**每次生成只填内容，不写系统**。版式从登记表选用，不临场发明；但 L 骨架只是结构下限，必须再通过 [hybrid-quality-gate.md](references/hybrid-quality-gate.md) 做出风格场面和可截图定格帧。
+- `standard`：16:9 用 [base-template.html](assets/base-template.html)，3:4 用 [base-template-portrait.html](assets/base-template-portrait.html)。
+- `srt`：只用 [base-template-srt.html](assets/base-template-srt.html)，再读取 [SRT 时间轴](references/srt-autoplay.md)、[SRT 装配增量](references/srt-production.md)、[SRT Beat 增量](references/srt-beat-contract.md) 与 [SRT 验收增量](references/srt-quality-check.md)。
+- 生成时只填模板注入点，不改 RUNTIME CORE 与 RUNTIME JS；不在 beat 内另写状态机、事件监听或独立计时器。
 
-## 流水线（6 阶段，4 确认门）
+## 生产流程
+
+### 共享流程
 
 ```text
-口播稿+SRT → [审稿] →⏸→ [分镜] →⏸→ [锁风格] →⏸→ [锁时间轴] →⏸→ [装配HTML] → [视觉+同步验收] → 交付
+P1 审稿 → 确认 → P2 分镜 → 确认 → P3 锁风格与 Beat Contract → 确认
 ```
-
-各阶段只读一份入口文件：
 
 | 阶段 | 单一入口 | 产出 |
 |---|---|---|
-| P1 审稿 | [references/script-audit.md](references/script-audit.md) | 通过 / 轻改 / 重写，**停**等确认 |
-| P2 分镜 | [references/storyboard.md](references/storyboard.md)（原语判断查 [information-primitives.md](references/information-primitives.md)） | 分镜表，**停**等确认 |
-| P3 锁风格 | 风格选择矩阵（下方；未点名风格时必须先推送选项表）+ 所选 [styles/{id}.md](styles/) + [hybrid-quality-gate.md](references/hybrid-quality-gate.md) + [beat-contract.md](references/beat-contract.md) | 风格 + beat 契约，**停**等确认 |
-| P3.5 锁时间轴 | [references/srt-autoplay.md](references/srt-autoplay.md) | SRT 覆盖表 + beat/step 毫秒点 + B-roll 区间，**停**等确认 |
-| P4 装配 | [references/html-production.md](references/html-production.md)，版式查 [layout-skeletons.md](references/layout-skeletons.md)，动效查 [motion-language.md](references/motion-language.md)，审美查 [hybrid-quality-gate.md](references/hybrid-quality-gate.md) | SRT 驱动的单文件 HTML |
-| P5 验收 | [references/quality-check.md](references/quality-check.md) | 静态校验 + 同步检查 + 截图，不过自动修复 |
+| P1 审稿 | [script-audit.md](references/script-audit.md) | 通过 / 轻改 / 重写，停等确认 |
+| P2 分镜 | [storyboard.md](references/storyboard.md)；原语查 [information-primitives.md](references/information-primitives.md) | 画幅、模式与分镜表，停等确认 |
+| P3 锁风格 | 所选 `styles/{id}.md` + [hybrid-quality-gate.md](references/hybrid-quality-gate.md) + [beat-contract.md](references/beat-contract.md) | 全片风格与 beat 契约，停等确认 |
 
-P5 通过即结束。SRT 只提供时间与文本索引；禁止生成 TTS、禁止嵌入 audio/voice、禁止让声音成为自动播放依赖。
+### Standard 收尾
 
-## 六个重点风格方向
-
-| 风格 | 最适合 | 气质一句话 | 不适合 |
-|---|---|---|---|
-| [apple-tech-gradient](styles/apple-tech-gradient.md) | AI 工具、产品概念、抽象机制 | 黑色空间里概念被光场托起 | 密集数据、档案证据 |
-| [finance-studio-cards](styles/finance-studio-cards.md) | 财经、商业模式、指标关系 | 演播室信息屏，主数字+传导路径 | 情绪叙事、纯观点 |
-| [editorial-magazine](styles/editorial-magazine.md) | 深度观点、文化商业洞察 | 正在重排的杂志跨页 | 功能堆叠、复杂节点网 |
-| [newspaper-evidence](styles/newspaper-evidence.md) | 新闻、历史、案例、证据链 | 整理过的调查档案 | 未来感产品、抽象概念 |
-| [paper-collage](styles/paper-collage.md) | 生活方式、测评、经验清单 | 新潮复古贴纸手账跨页 | 严肃财经、档案调查 |
-| [sketch-note](styles/sketch-note.md) | 科普、教学、新手向讲解 | 白纸黑线知识手稿 | 产品发布感、数据大屏 |
-
-选择规则：
-1. 普适短视频 / 小红书 / 清单 / 种草 / 经验总结 → paper-collage（重点打磨）
-2. 教学科普 / 新手向 / 概念解释 / 方法步骤 → sketch-note（重点打磨）
-3. AI 工具、产品概念、抽象机制、发布会感 → apple-tech-gradient（重点打磨）
-4. 新闻、历史、案例、证据链、事实澄清 → newspaper-evidence
-5. 深度观点、文化商业洞察、编辑判断 → editorial-magazine
-6. 财经、商业模式、指标传导、行业结构 → finance-studio-cards
-7. 有真实截图时先判断截图是主证据（newspaper/L08）还是辅助素材（按内容气质选）
-8. 全片单一风格，不可混搭；内容不合风格就换风格，不改风格
-9. 暂不主动选用 apple-light-blue-glass / ink-framework / manifesto-poster；旧资产可保留，但不进入默认推荐和测试闭环。
-
-## 风格选择输出（P3 必须）
-
-进入 P3 且用户没有明确点名风格时，必须先推送风格选择表，并停等用户确认。表格字段固定为：
-
-```md
-| 风格名 | 特点 | 适合类型 |
-|---|---|---|
-| editorial-magazine（推荐） | 高级中文编辑特稿，靠断句、编号、拉引和留白建立内容美感 | 深度观点、方法论、文化商业洞察 |
+```text
+P4 按 html-production.md 装配 → P5 按 quality-check.md 验收 → 交付
 ```
 
-规则：
-1. 按当前内容适配度排序，不照搬固定顺序。
-2. 只能推荐 1 个；推荐项在「风格名」后标 `（推荐）`。
-3. 「特点」写一句气质，不写长解释；「适合类型」写短语。
-4. 如果用户已明确选择某风格，跳过选项表，但在 P3 输出中记录选择来源。
-5. 用户确认风格后，才继续读取对应 `styles/{id}.md`、质量门和 beat 契约。
+3:4 必须加读 [portrait-adaptation.md](references/portrait-adaptation.md)，并从 [layout-skeletons-portrait.md](references/layout-skeletons-portrait.md) 选择 V 骨架；16:9 从 [layout-skeletons.md](references/layout-skeletons.md) 选择 L 骨架。
+
+### SRT 收尾
+
+```text
+P3.5 锁 SRT 覆盖与 B-roll → 确认 → P4 装配自动播放 HTML → P5 视觉与同步验收 → 交付
+```
+
+先运行 `node scripts/parse-srt.mjs input.srt`。SRT 是唯一主时钟，但不是字幕层；最终 HTML 不显示逐句字幕、不生成配音、不嵌入 audio/voice。
+
+## 七个重点风格
+
+| 风格 | 最适合 | 画面气质 |
+|---|---|---|
+| [apple-tech-gradient](styles/apple-tech-gradient.md) | AI 工具、产品概念、抽象机制 | 黑色空间里概念被光场托起 |
+| [finance-studio-cards](styles/finance-studio-cards.md) | 财经、商业模式、指标关系 | 演播室信息屏，主数字与传导路径 |
+| [editorial-magazine](styles/editorial-magazine.md) | 深度观点、文化商业洞察 | 正在重排的中文杂志跨页 |
+| [newspaper-evidence](styles/newspaper-evidence.md) | 新闻、历史、案例、证据链 | 整理过的调查档案 |
+| [paper-craft-studio](styles/paper-craft-studio.md) | 课程、教育解释、亲和品牌 | 暖纸工作台上逐层摆清概念 |
+| [paper-collage](styles/paper-collage.md) | 小红书、测评、经验清单 | 新潮复古贴纸手账跨页 |
+| [sketch-note](styles/sketch-note.md) | 科普、教学、新手向讲解 | 白纸黑线知识手稿 |
+
+选择规则：内容适配优先；全片只用一个主风格。没有指定时，按适配度给出精简选择表，只推荐一个并停等确认。`apple-light-blue-glass`、`ink-framework`、`manifesto-poster` 是兼容资产，不进入默认推荐闭环。
 
 ## 不可违背的总规则
 
-以下规则各 reference 会展开，这里是最终裁决版：
+1. **单一视觉中心**：每个 beat 只有一个第一眼落点和一个核心信息关系。
+2. **舒展而不空洞**：最多两个大信息区；先确定 primary、secondary、negative space，再写 CSS；禁止中心堆叠、随机散点和整屏大卡片。
+3. **信息分布可证明**：16:9 主体不得长期挤在中央 40%；3:4 常规页最终态纵向有效跨度达到舞台高度 62% 以上。
+4. **文字短于口播**：中文标题按语义短语断行；禁止单字孤行、挤压、溢出和用缩小字号掩盖布局问题。
+5. **final-state-first**：CSS 静止态就是最终帧；时间线只用 `gsap.from/fromTo` + `clearProps`，结束后完全静止可截图。
+6. **四段式镜头**：核心 beat 能说明 `glance → reconstruct → push → lock`。Claim 页可省略 reconstruct，但必须保留明确落点和记忆定格。
+7. **逐项揭示**：口播逐个讲的清单按 step 揭示；禁止多项同时 stagger 涌入。
+8. **运动预算**：每 beat 最多 1 个结构运动、2 组辅助出现、1 次锁定强调；动画总时长必须短于该段口播。
+9. **编号分层**：章节装饰号、流程编号与页码使用不同角色，不能压线、压字或互相冒充。
+10. **元素不重叠**：任何真实重叠、裁切、越界或引导线穿越内容都判失败；先改结构，再重截。
+11. **风格必须显性**：每个 beat 至少使用一个所选风格的签名组件或构图，核心 beat 至少两个。
+12. **token 纪律**：beat CSS 只消费风格变量与签名类，不硬编码颜色和字体。
+13. **3:4 不是缩放**：左右结构转上下，横向路径转纵向，3×2 转 2×3，只使用 V 骨架。
+14. **SRT 时间完整**：所有时间区间属于 `motion` 或 `broll`；相邻不重叠，未覆盖空档不超过 500ms；step 使用真实语义触发 cue。
+15. **B-roll 是正式画面**：只显示 `B-ROLL`、序号和 4-18 字具体标题，不用空白页或“这里放素材”等制作备注。
+16. **真实浏览器验收**：至少检查首屏、最密 beat、多步最终帧、B-roll（如有）和收束页；截图失败即不交付。
 
-1. **交付形态**：单文件 HTML，1920×1080（4:3 用 1440×1080，改 `--stage-w/h`）。打开后点击“准备录屏”，自动请求全屏并倒数 3 秒；Space 暂停/继续，←/→ 跳 5 秒，`R` 从头倒数重播，`F` 全屏（禁止绑定 Cmd+F）。
-2. **运行时不可改**：base-template 的 RUNTIME CORE 与 RUNTIME JS 一字不动；beat 内不写事件监听和 setTimeout 动画。
-3. **final-state-first**：CSS 静止态 = 最终帧；时间线只用 `gsap.from/fromTo` + `clearProps`。
-4. **每 beat 必登记**：除原有 `data-layout` / `data-core` / `data-primitive` / `data-steps` 外，必须写 `data-start-ms`、`data-end-ms`；多步再写 `data-step-times`，其时间点按 step 2..N 顺序登记。CPSE 原语写 `data-visual-demo`；关键容器加 `data-safe-box`。
-5. **风格场面必显性**：每个 beat 必须有 `style_scene` 和最终定格帧；至少使用 1 个所选风格签名组件或签名构图，核心 beat 至少 2 个。
-6. **token 纪律**：beat CSS 禁止硬编码颜色和字体名，只消费风格层变量和签名类。
-7. **屏幕文字短于口播**；中文标题短语断行、无单字孤行；禁止捏造数据来源引用。
-8. **舒展版式优先**：每 beat 最多 2 个大信息区；先定 primary / secondary / negative space，再写 CSS；禁止随机散点、中心堆叠、整屏大卡片、红框调试式外框。
-9. **编号语义分层**：章节装饰号、流程/清单编号、页码/folio 必须使用不同视觉角色。装饰号可作为浅色背景锚点，但不得压线、压字或贴近清单编号；流程编号必须贴近对应条目。不能通过删除装饰号或改成清单编号来规避压线问题。
-10. **四段式镜头编排**：核心 beat 必须能说明 `glance → reconstruct → push → lock`；先建立视觉重心，再让信息关系发生变化，再推进关键词/远近/焦点，最后记忆定格。Claim 页可省略 reconstruct，但必须说明原因。
-11. **运动预算**：每 beat 最多 1 个结构运动 + 2 组辅助出现 + 1 次锁定强调；动画总时长 < 口播时长（4 字/秒）；结束完全静止可截图。
-12. **逐项揭示**：口播逐个讲的清单，1 项 = 1 step（预算内合并到 2-3 步时按组揭示）；禁止多项同时 stagger 涌入。
-13. **验收以截图为准**：首屏、最密 beat、多步 beat 最后一步、收束页；任何真实重叠 = 失败，先改版式再重截。
-14. 生成后必须运行：
+## 校验命令
+
+Standard：
 
 ```bash
-node <SKILL_ROOT>/scripts/validate-motion-html.mjs path/to/output.html
+node <SKILL_ROOT>/scripts/validate-motion-html.mjs output.html
+node <SKILL_ROOT>/scripts/check-layout-browser.mjs output.html
 ```
 
-Playwright 可用时加跑 `scripts/check-layout-browser.mjs`；不可用改 Agent 浏览器/人工截图，不为装依赖阻塞交付。
+SRT：
 
-15. **SRT 是唯一主时钟**：先运行 `scripts/parse-srt.mjs`，再把 cue 范围映射到 beat。不得按字数估算替代真实时间，不得用一串 `setTimeout` 推进。
-16. **时间覆盖完整**：从首条字幕开始到末条字幕结束，每个区间必须属于 `motion` 或 `broll`；相邻 beat 不重叠，空档不得超过 500ms。
-17. **B-roll 是正式 beat**：没有 HTML 信息演示的区间写 `data-kind="broll" data-layout="LX-BROLL" data-broll-title="短标题"`，画面使用基座的 `.broll-scene` / `.broll-frame`，只显示 `B-ROLL`、序号和对应短标题。禁止用普通空白页或随意 placeholder 代替。
-18. **录屏终态可靠**：切出浏览器录制真实 B-roll 后，回到 HTML 时按主时钟追上正确画面；暂停后主时钟必须冻结；从头重播必须可重复得到相同节奏。
+```bash
+node <SKILL_ROOT>/scripts/validate-motion-html-srt.mjs output.html
+node <SKILL_ROOT>/scripts/check-layout-browser-srt.mjs output.html
+```
+
+Playwright 不可用时，改用 Agent 浏览器或人工截图，不为安装依赖阻塞交付。
 
 ## 资源导览
 
-```
-jacky-motion2-0-srt/
-├── SKILL.md                        ← 流程与总规则（本文件）
+```text
+jacky-motion2-0/
+├── SKILL.md
 ├── assets/
-│   ├── base-template.html          ← 固化运行时基座（拷贝后只填 4 个注入点）
-│   └── styles/{id}.css             ← 风格层（当前主流程只使用 6 个重点风格）
-├── styles/{id}.md                  ← 风格卡（当前主流程只主动推荐 6 个重点风格）
+│   ├── base-template.html
+│   ├── base-template-portrait.html
+│   ├── base-template-srt.html
+│   └── styles/{id}.css
+├── styles/{id}.md
 ├── references/
-│   ├── script-audit.md             ← P1 审稿标准
-│   ├── storyboard.md               ← P2-P3 分镜与契约（单一入口）
-│   ├── srt-autoplay.md              ← P3.5 SRT 解析、覆盖表与 B-roll 时间轴
-│   ├── beat-contract.md            ← 每 beat 生成前必须填写的完整合同
-│   ├── hybrid-quality-gate.md      ← 混合版审美门禁：风格 DNA / 版面 / 定格帧
-│   ├── information-primitives.md   ← 信息原语判断
-│   ├── layout-skeletons.md         ← L01-L10 版式骨架登记表 + 排版铁律
-│   ├── motion-language.md          ← 正向运动语法 + recipe + GSAP 片段
-│   ├── html-production.md          ← P4 装配规范（单一入口）
-│   └── quality-check.md            ← P5 验收清单
+│   ├── script-audit.md / storyboard.md / beat-contract.md
+│   ├── layout-skeletons.md / layout-skeletons-portrait.md
+│   ├── portrait-adaptation.md / motion-language.md
+│   ├── html-production.md / quality-check.md
+│   └── srt-autoplay.md / srt-production.md / srt-beat-contract.md / srt-quality-check.md
 └── scripts/
-    ├── parse-srt.mjs               ← 把 SRT 解析为毫秒 cue JSON
-    ├── validate-motion-html.mjs    ← 静态校验（登记表/时间轴/运行时完整性）
-    └── check-layout-browser.mjs    ← 浏览器布局校验（Playwright 可选）
+    ├── parse-srt.mjs
+    ├── validate-motion-html.mjs / check-layout-browser.mjs
+    └── validate-motion-html-srt.mjs / check-layout-browser-srt.mjs
 ```
 
 ## 长内容处理
@@ -151,5 +159,5 @@ jacky-motion2-0-srt/
 | 长度 | 处理 |
 |---|---|
 | 1-3 分钟 | 单一 storyboard，5-8 beat |
-| 3-8 分钟 | 主轨压缩 + 连续对象，9-14 beat；细节留给 B-roll |
-| 8 分钟以上 | 拆多集或多文件；单文件只做总览主轨 |
+| 3-8 分钟 | 主轨压缩，9-14 beat；细节交给口播或 B-roll |
+| 8 分钟以上 | 拆成多集或多文件；单文件只做总览主轨 |

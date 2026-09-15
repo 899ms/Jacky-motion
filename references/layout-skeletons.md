@@ -181,7 +181,7 @@ Step 建议：每 step = 新节点 + 它的连接线（TL 里线用 `gsap.from(.
         <div class="bK-layer-t">版式库</div><p class="body-text">十个登记骨架，选用不发明</p>
       </div>
       <div class="card bK-layer" data-step="3" data-safe-box="layer-3">
-        <div class="bK-layer-t">风格层</div><p class="body-text">八套 token，换风格不换结构</p>
+        <div class="bK-layer-t">风格层</div><p class="body-text">统一 token，换风格不换结构</p>
       </div>
     </div>
   </div>
